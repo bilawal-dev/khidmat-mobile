@@ -1,0 +1,375 @@
+import type { ServiceCategory } from '../mock/providers';
+import { providers, SECTOR_COORDS } from '../mock/providers';
+import { haversineKm } from '../util/distance';
+import type { AgentEvent, ExtractedIntent } from './types';
+
+// ── Keyword tables ──────────────────────────────────────────────
+
+const SERVICE_KEYWORDS: Record<ServiceCategory, string[]> = {
+  ac: ['ac', 'air condition', 'cooling'],
+  plumber: ['plumb', 'leak', 'tap', 'nal', 'pipe', 'bathroom'],
+  electrician: ['electric', 'wiring', 'bijli', 'switch', 'fan'],
+  tutor: ['tutor', 'teach', 'tuition', 'math', 'english', 'science', 'ustaad'],
+  beautician: [
+    'beautician',
+    'salon',
+    'beauty',
+    'makeup',
+    'facial',
+    'hair',
+    'haircut',
+  ],
+};
+
+const TIME_KEYWORDS: Record<string, string> = {
+  kal: 'tomorrow',
+  tomorrow: 'tomorrow',
+  subah: 'morning',
+  morning: 'morning',
+  shaam: 'evening',
+  evening: 'evening',
+  raat: 'night',
+  night: 'night',
+  abhi: 'now',
+  now: 'now',
+  asap: 'now',
+  aaj: 'today',
+  today: 'today',
+  monday: 'Monday',
+  tuesday: 'Tuesday',
+  wednesday: 'Wednesday',
+  thursday: 'Thursday',
+  friday: 'Friday',
+  saturday: 'Saturday',
+  sunday: 'Sunday',
+};
+
+// ── Helpers ─────────────────────────────────────────────────────
+
+function delay(ms: number): Promise<void> {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+function detectService(msg: string): ServiceCategory | null {
+  const lower = msg.toLowerCase();
+  for (const [category, keywords] of Object.entries(SERVICE_KEYWORDS)) {
+    for (const kw of keywords) {
+      if (lower.includes(kw)) return category as ServiceCategory;
+    }
+  }
+  return null;
+}
+
+function detectLocation(msg: string): string | null {
+  // Match patterns like G-13, F-10/3, I-8/3, F-7, etc.
+  const match = msg.match(/\b([A-Ia-i]-\d{1,2}(?:\/\d)?)\b/i);
+  return match ? match[1].toUpperCase() : null;
+}
+
+function detectTime(msg: string): string | null {
+  const lower = msg.toLowerCase();
+  const parts: string[] = [];
+
+  for (const [keyword, label] of Object.entries(TIME_KEYWORDS)) {
+    if (lower.includes(keyword)) {
+      if (!parts.includes(label)) parts.push(label);
+    }
+  }
+
+  return parts.length > 0 ? parts.join(' ') : null;
+}
+
+function resolveSlotFromTime(
+  time: string,
+  availableSlots: string[],
+): string | null {
+  if (!time || availableSlots.length === 0) return availableSlots[0] ?? null;
+
+  const lower = time.toLowerCase();
+
+  if (lower.includes('morning') || lower.includes('subah')) {
+    // Prefer morning slots (before 12 PM)
+    const morning = availableSlots.find((s) => {
+      const hour = parseInt(s.split(':')[0]);
+      return s.includes('AM') && hour >= 6 && hour <= 11;
+    });
+    return morning ?? availableSlots[0];
+  }
+
+  if (lower.includes('evening') || lower.includes('shaam')) {
+    const evening = availableSlots.find((s) => {
+      const hour = parseInt(s.split(':')[0]);
+      return (s.includes('PM') && hour >= 4) || (s.includes('PM') && hour === 12);
+    });
+    return evening ?? availableSlots[availableSlots.length - 1];
+  }
+
+  if (lower.includes('now') || lower.includes('asap')) {
+    return availableSlots[0];
+  }
+
+  return availableSlots[0];
+}
+
+function getCoordsForSector(sector: string): { lat: number; lng: number } {
+  // Try exact match first
+  if (SECTOR_COORDS[sector]) return SECTOR_COORDS[sector];
+
+  // Try base sector (e.g. F-10 from F-10/3)
+  const base = sector.split('/')[0];
+  for (const [key, coords] of Object.entries(SECTOR_COORDS)) {
+    if (key.startsWith(base)) return coords;
+  }
+
+  // Fallback to F-10/3
+  return SECTOR_COORDS['F-10/3'];
+}
+
+const WEEKDAYS = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+];
+
+function resolveSchedule(
+  time: string | null,
+): { dayLabel: string; daysOffset: number } {
+  if (!time) return { dayLabel: 'Tomorrow', daysOffset: 1 };
+  const lower = time.toLowerCase();
+  if (/\b(kal|tomorrow)\b/.test(lower)) {
+    return { dayLabel: 'Tomorrow', daysOffset: 1 };
+  }
+  if (/\b(aaj|today|abhi|now|asap)\b/.test(lower)) {
+    return { dayLabel: 'Today', daysOffset: 0 };
+  }
+  for (let i = 0; i < WEEKDAYS.length; i++) {
+    if (lower.includes(WEEKDAYS[i].toLowerCase())) {
+      const today = new Date().getDay();
+      const offset = ((i - today + 7) % 7) || 7; // next occurrence (skip today)
+      return { dayLabel: WEEKDAYS[i], daysOffset: offset };
+    }
+  }
+  return { dayLabel: 'Tomorrow', daysOffset: 1 };
+}
+
+function computeScheduledTimestamp(daysOffset: number, slot: string): number {
+  const date = new Date();
+  date.setDate(date.getDate() + daysOffset);
+  const m = slot.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+  if (m) {
+    let h = parseInt(m[1]);
+    const min = parseInt(m[2]);
+    if (m[3].toUpperCase() === 'PM' && h !== 12) h += 12;
+    if (m[3].toUpperCase() === 'AM' && h === 12) h = 0;
+    date.setHours(h, min, 0, 0);
+  }
+  return date.getTime();
+}
+
+function computeReminderTime(slot: string): string {
+  // Parse slot like '10:00 AM' → compute 1 hour before
+  const parts = slot.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+  if (!parts) return '1 hour before';
+
+  let hour = parseInt(parts[1]);
+  const minutes = parts[2];
+  const period = parts[3].toUpperCase();
+
+  // Convert to 24h for math
+  let hour24 = hour;
+  if (period === 'PM' && hour !== 12) hour24 += 12;
+  if (period === 'AM' && hour === 12) hour24 = 0;
+
+  // Subtract 1 hour
+  hour24 = (hour24 - 1 + 24) % 24;
+
+  // Convert back to 12h
+  const newPeriod = hour24 >= 12 ? 'PM' : 'AM';
+  let newHour = hour24 % 12;
+  if (newHour === 0) newHour = 12;
+
+  return `${newHour}:${minutes} ${newPeriod}`;
+}
+
+// ── Main agent generator ────────────────────────────────────────
+
+export async function* runAgent(
+  userMessage: string,
+  context: { defaultLocation: string; conversationHistory: AgentEvent[] },
+): AsyncGenerator<AgentEvent> {
+  // Check if this is a follow-up answer to a previous awaiting_user event
+  const lastAwaiting = context.conversationHistory
+    .filter((e): e is Extract<AgentEvent, { type: 'awaiting_user' }> => e.type === 'awaiting_user')
+    .pop();
+
+  let service = detectService(userMessage);
+  let location = detectLocation(userMessage);
+  let time = detectTime(userMessage);
+
+  // If following up on a previous question, merge with prior context
+  if (lastAwaiting) {
+    // Try to recover prior extracted data from the last understanding event
+    const lastUnderstanding = context.conversationHistory
+      .filter(
+        (e): e is Extract<AgentEvent, { type: 'understanding' }> =>
+          e.type === 'understanding',
+      )
+      .pop();
+
+    if (lastUnderstanding) {
+      if (!service && lastUnderstanding.extracted.service)
+        service = lastUnderstanding.extracted.service;
+      if (!location && lastUnderstanding.extracted.location)
+        location = lastUnderstanding.extracted.location;
+      if (!time && lastUnderstanding.extracted.time)
+        time = lastUnderstanding.extracted.time;
+    }
+
+    // For location follow-up, also try to detect the sector from this message
+    if (lastAwaiting.missing === 'location' && !location) {
+      location = detectLocation(userMessage);
+    }
+    // For time follow-up, try to detect time
+    if (lastAwaiting.missing === 'time' && !time) {
+      time = detectTime(userMessage);
+    }
+  }
+
+  let usedDefaultLocation = false;
+
+  // If location is still missing, try default
+  if (!location && context.defaultLocation) {
+    location = context.defaultLocation;
+    usedDefaultLocation = true;
+  }
+
+  const extracted: ExtractedIntent = {
+    service,
+    location,
+    time,
+    resolvedSlot: null,
+  };
+
+  // 1. Understanding
+  yield {
+    type: 'understanding',
+    extracted,
+    usedDefaultLocation,
+  };
+  await delay(500);
+
+  // 2. Branching — check for missing info
+  if (!service) {
+    yield {
+      type: 'awaiting_user',
+      question:
+        'I help with AC repair, plumbing, electrical, tutoring, and beauty services. What do you need?',
+      missing: 'service',
+    };
+    return;
+  }
+
+  if (!location) {
+    yield {
+      type: 'awaiting_user',
+      question:
+        'Which sector should I look in? For example, G-13, F-10/3, or I-8.',
+      missing: 'location',
+    };
+    return;
+  }
+
+  if (!time) {
+    yield {
+      type: 'awaiting_user',
+      question:
+        'When do you need this service? For example, "kal subah" or "abhi".',
+      missing: 'time',
+    };
+    return;
+  }
+
+  // 3. Searching
+  yield {
+    type: 'searching',
+    near: location,
+    category: service,
+  };
+  await delay(700);
+
+  // 4. Filter + rank
+  const userCoords = getCoordsForSector(location);
+  const candidates = providers
+    .filter((p) => p.category === service)
+    .map((p) => ({
+      provider: p,
+      distanceKm: haversineKm(userCoords, p.coords),
+    }))
+    .sort((a, b) => {
+      // Composite score: lower distance + higher rating = better
+      const distScore = a.distanceKm - b.distanceKm; // lower is better
+      const ratingScore = (b.provider.rating - a.provider.rating) * 5; // higher is better, weighted
+      return distScore + ratingScore;
+    });
+
+  yield {
+    type: 'ranking',
+    candidateCount: candidates.length,
+  };
+  await delay(400);
+
+  // 5. Recommendation
+  const top = candidates[0];
+  if (!top) return;
+
+  const suggestedSlot = resolveSlotFromTime(time, top.provider.availableSlots);
+  if (!suggestedSlot) return;
+
+  // Build human-friendly reasoning
+  const reasoning = `Closest available ${service === 'ac' ? 'technician' : service === 'plumber' ? 'plumber' : service === 'electrician' ? 'electrician' : service === 'tutor' ? 'tutor' : 'beautician'} with ${top.provider.rating}★ from ${top.provider.reviewCount} reviews.`;
+
+  const { dayLabel, daysOffset } = resolveSchedule(time);
+  const scheduledTimestamp = computeScheduledTimestamp(daysOffset, suggestedSlot);
+
+  yield {
+    type: 'recommendation',
+    provider: top.provider,
+    distanceKm: Math.round(top.distanceKm * 10) / 10,
+    reasoning,
+    suggestedSlot,
+    dayLabel,
+    scheduledTimestamp,
+  };
+}
+
+// ── Booking confirmation generator ──────────────────────────────
+
+export async function* confirmBooking(
+  provider: (typeof providers)[number],
+  slot: string,
+  dayLabel: string,
+): AsyncGenerator<AgentEvent> {
+  yield {
+    type: 'booking',
+    provider,
+    slot,
+  };
+  await delay(1000);
+
+  const bookingId = `b_${Date.now()}`;
+  yield {
+    type: 'confirmed',
+    bookingId,
+  };
+  await delay(300);
+
+  const reminderTime = computeReminderTime(slot);
+  yield {
+    type: 'reminder_scheduled',
+    at: `${reminderTime} ${dayLabel}`,
+  };
+}
