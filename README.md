@@ -6,7 +6,7 @@ Built with Expo, React Native, Zustand, and TypeScript. Pairs with any server th
 
 ## Status
 
-Currently runs against an in-process mock agent at [lib/agent/mockAgent.ts](lib/agent/mockAgent.ts). Wiring to a real backend is the next integration step — swap the mock for an SSE client that hits `EXPO_PUBLIC_API_BASE_URL/chat`.
+Currently runs against an in-process mock agent at [lib/agent/mockAgent.ts](lib/agent/mockAgent.ts). Wiring to a real backend is the next integration step — swap the mock for an SSE client that hits `EXPO_PUBLIC_API_BASE_URL/chat` .
 
 ## Stack
 
