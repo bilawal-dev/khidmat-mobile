@@ -1,12 +1,13 @@
 import React from 'react';
 import { View, Text } from 'react-native';
+import type { BookingStatus } from '@/lib/stores/useBookingsStore';
 
 type StatusBadgeProps = {
-  status: 'confirmed' | 'reminded' | 'completed' | 'cancelled';
+  status: BookingStatus;
 };
 
 const STATUS_STYLES: Record<
-  string,
+  BookingStatus,
   { bg: string; text: string; label: string }
 > = {
   confirmed: { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Confirmed' },

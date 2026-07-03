@@ -4,6 +4,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { ServiceCategory } from '../mock/providers';
 import type { AgentEvent } from '../agent/types';
 
+/** Lifecycle states a booking can be in. */
+export type BookingStatus = 'confirmed' | 'reminded' | 'completed' | 'cancelled';
+
 export type Booking = {
   id: string;
   providerId: string;
@@ -12,7 +15,7 @@ export type Booking = {
   sector: string;
   scheduledFor: string; // 'Tomorrow, 10:00 AM'
   scheduledTimestamp: number;
-  status: 'confirmed' | 'reminded' | 'completed' | 'cancelled';
+  status: BookingStatus;
   reminderAt: string;
   agentThread: AgentEvent[]; // preserved events from the conversation
   createdAt: number;
@@ -21,10 +24,7 @@ export type Booking = {
 type BookingsState = {
   bookings: Booking[];
   addBooking: (booking: Booking) => void;
-  updateStatus: (
-    id: string,
-    status: 'confirmed' | 'reminded' | 'completed' | 'cancelled',
-  ) => void;
+  updateStatus: (id: string, status: BookingStatus) => void;
   cancel: (id: string) => void;
   clear: () => void;
 };
