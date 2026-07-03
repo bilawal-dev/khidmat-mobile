@@ -31,7 +31,7 @@ type BookingsState = {
 
 export const useBookingsStore = create<BookingsState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       bookings: [],
       addBooking: (booking: Booking) =>
         set((state) => ({ bookings: [booking, ...state.bookings] })),
@@ -41,12 +41,9 @@ export const useBookingsStore = create<BookingsState>()(
             b.id === id ? { ...b, status } : b,
           ),
         })),
-      cancel: (id) =>
-        set((state) => ({
-          bookings: state.bookings.map((b) =>
-            b.id === id ? { ...b, status: 'cancelled' as const } : b,
-          ),
-        })),
+      // Cancelling is just a status transition — reuse updateStatus so the
+      // update logic lives in one place.
+      cancel: (id) => get().updateStatus(id, 'cancelled'),
       clear: () => set({ bookings: [] }),
     }),
     {
