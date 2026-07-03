@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { STORAGE_KEYS } from './storageKeys';
 
 type SettingsState = {
   defaultLocation: string;
@@ -15,7 +16,7 @@ export const useSettingsStore = create<SettingsState>()(
         set({ defaultLocation: location }),
     }),
     {
-      name: 'khidmat-settings',
+      name: STORAGE_KEYS.settings,
       storage: createJSONStorage(() => AsyncStorage),
     },
   ),

@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { ServiceCategory } from '../mock/providers';
 import type { AgentEvent } from '../agent/types';
+import { STORAGE_KEYS } from './storageKeys';
 
 /** Lifecycle states a booking can be in. */
 export type BookingStatus = 'confirmed' | 'reminded' | 'completed' | 'cancelled';
@@ -47,7 +48,7 @@ export const useBookingsStore = create<BookingsState>()(
       clear: () => set({ bookings: [] }),
     }),
     {
-      name: 'khidmat-bookings',
+      name: STORAGE_KEYS.bookings,
       storage: createJSONStorage(() => AsyncStorage),
     },
   ),
