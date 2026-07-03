@@ -22,6 +22,7 @@ import { ExamplePromptChip } from '@/components/ExamplePromptChip';
 import { runAgent, confirmBooking } from '@/lib/agent/mockAgent';
 import { useSettingsStore } from '@/lib/stores/useSettingsStore';
 import { useBookingsStore } from '@/lib/stores/useBookingsStore';
+import { categoryRoleLabel } from '@/lib/categories';
 import type { AgentEvent } from '@/lib/agent/types';
 
 type RecommendationEvent = Extract<AgentEvent, { type: 'recommendation' }>;
@@ -111,16 +112,6 @@ const EXAMPLE_PROMPTS = [
   'Math tutor for my son, F-10',
   'Beautician chahiye Sunday ko, home service',
 ];
-
-// ── Category display names ──────────────────────────────────────
-
-const CATEGORY_LABEL: Record<string, string> = {
-  ac: 'AC Technician',
-  plumber: 'Plumber',
-  electrician: 'Electrician',
-  tutor: 'Tutor',
-  beautician: 'Beautician',
-};
 
 // ── Main Chat Screen ────────────────────────────────────────────
 
@@ -293,7 +284,7 @@ export default function ChatScreen() {
               <ExtractedFieldsRow
                 service={
                   extracted.service
-                    ? CATEGORY_LABEL[extracted.service] ?? extracted.service
+                    ? categoryRoleLabel(extracted.service)
                     : null
                 }
                 location={locationLabel}
@@ -308,8 +299,8 @@ export default function ChatScreen() {
             <View>
               <ChatBubble side="agent">
                 <Text className="text-[15px] text-gray-900">
-                  Looking for {CATEGORY_LABEL[event.category] ?? event.category}{' '}
-                  near {event.near}
+                  Looking for {categoryRoleLabel(event.category)} near{' '}
+                  {event.near}
                 </Text>
               </ChatBubble>
               {showLoading && <TypingIndicator />}

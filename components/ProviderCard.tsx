@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { Provider } from '@/lib/mock/providers';
+import { categoryEmoji, categoryServiceLabel } from '@/lib/categories';
 
 type ProviderCardProps = {
   provider: Provider;
@@ -10,22 +11,6 @@ type ProviderCardProps = {
   suggestedSlot: string;
   dayLabel: string;
   onBook: () => void;
-};
-
-const CATEGORY_EMOJI: Record<string, string> = {
-  ac: '❄️',
-  plumber: '🔧',
-  electrician: '⚡',
-  tutor: '📚',
-  beautician: '💅',
-};
-
-const CATEGORY_LABEL: Record<string, string> = {
-  ac: 'AC Repair',
-  plumber: 'Plumbing',
-  electrician: 'Electrical',
-  tutor: 'Tutoring',
-  beautician: 'Beauty',
 };
 
 export function ProviderCard({
@@ -41,16 +26,14 @@ export function ProviderCard({
       {/* Header */}
       <View className="flex-row items-center">
         <View className="h-10 w-10 items-center justify-center rounded-full bg-primary-100">
-          <Text className="text-lg">
-            {CATEGORY_EMOJI[provider.category] ?? '🛠'}
-          </Text>
+          <Text className="text-lg">{categoryEmoji(provider.category)}</Text>
         </View>
         <View className="ml-3 flex-1">
           <Text className="text-base font-bold text-gray-900">
             {provider.name}
           </Text>
           <Text className="text-xs text-gray-500">
-            {CATEGORY_LABEL[provider.category] ?? provider.category}
+            {categoryServiceLabel(provider.category)}
           </Text>
         </View>
       </View>

@@ -11,22 +11,7 @@ import { router } from 'expo-router';
 
 import { StatusBadge } from '@/components/StatusBadge';
 import { useBookingsStore } from '@/lib/stores/useBookingsStore';
-
-const CATEGORY_EMOJI: Record<string, string> = {
-  ac: '❄️',
-  plumber: '🔧',
-  electrician: '⚡',
-  tutor: '📚',
-  beautician: '💅',
-};
-
-const CATEGORY_LABEL: Record<string, string> = {
-  ac: 'AC Repair',
-  plumber: 'Plumbing',
-  electrician: 'Electrical',
-  tutor: 'Tutoring',
-  beautician: 'Beauty',
-};
+import { categoryEmoji, categoryServiceLabel } from '@/lib/categories';
 
 export default function BookingsScreen() {
   const rawBookings = useBookingsStore((s) => s.bookings);
@@ -98,7 +83,7 @@ export default function BookingsScreen() {
             {/* Category emoji */}
             <View className="h-11 w-11 items-center justify-center rounded-full bg-primary-50">
               <Text className="text-xl">
-                {CATEGORY_EMOJI[booking.category] ?? '🛠'}
+                {categoryEmoji(booking.category)}
               </Text>
             </View>
 
@@ -108,8 +93,7 @@ export default function BookingsScreen() {
                 {booking.providerName}
               </Text>
               <Text className="mt-0.5 text-xs text-gray-500">
-                {CATEGORY_LABEL[booking.category] ?? booking.category} ·{' '}
-                {booking.sector}
+                {categoryServiceLabel(booking.category)} · {booking.sector}
               </Text>
               <Text className="mt-0.5 text-xs text-gray-400">
                 {booking.scheduledFor}

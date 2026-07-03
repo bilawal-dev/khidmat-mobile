@@ -18,22 +18,7 @@ import { Button } from '@/components/Button';
 import { useBookingsStore } from '@/lib/stores/useBookingsStore';
 import { providers } from '@/lib/mock/providers';
 import type { AgentEvent } from '@/lib/agent/types';
-
-const CATEGORY_EMOJI: Record<string, string> = {
-  ac: '❄️',
-  plumber: '🔧',
-  electrician: '⚡',
-  tutor: '📚',
-  beautician: '💅',
-};
-
-const CATEGORY_LABEL: Record<string, string> = {
-  ac: 'AC Repair',
-  plumber: 'Plumbing',
-  electrician: 'Electrical',
-  tutor: 'Tutoring',
-  beautician: 'Beauty',
-};
+import { categoryEmoji, categoryServiceLabel } from '@/lib/categories';
 
 // ── Status Timeline ─────────────────────────────────────────────
 
@@ -130,8 +115,7 @@ export default function BookingDetailScreen() {
             <ExtractedFieldsRow
               service={
                 event.extracted.service
-                  ? CATEGORY_LABEL[event.extracted.service] ??
-                    event.extracted.service
+                  ? categoryServiceLabel(event.extracted.service)
                   : null
               }
               location={
@@ -147,8 +131,8 @@ export default function BookingDetailScreen() {
         return (
           <ChatBubble key={index} side="agent">
             <Text className="text-sm text-gray-900">
-              Looking for {CATEGORY_LABEL[event.category] ?? event.category}{' '}
-              near {event.near}...
+              Looking for {categoryServiceLabel(event.category)} near{' '}
+              {event.near}...
             </Text>
           </ChatBubble>
         );
@@ -212,15 +196,13 @@ export default function BookingDetailScreen() {
       {/* Provider Header */}
       <View className="items-center pb-4">
         <View className="mb-3 h-16 w-16 items-center justify-center rounded-full bg-primary-100">
-          <Text className="text-3xl">
-            {CATEGORY_EMOJI[booking.category] ?? '🛠'}
-          </Text>
+          <Text className="text-3xl">{categoryEmoji(booking.category)}</Text>
         </View>
         <Text className="text-xl font-bold text-gray-900">
           {booking.providerName}
         </Text>
         <Text className="mt-1 text-sm text-gray-500">
-          {CATEGORY_LABEL[booking.category] ?? booking.category}
+          {categoryServiceLabel(booking.category)}
         </Text>
         <View className="mt-2">
           <StatusBadge status={booking.status} />
