@@ -34,9 +34,7 @@ export function Button({
       disabled={disabled}
       className={`${base} ${variantStyles[variant]} ${disabled ? 'opacity-50' : ''}`}
     >
-      <Text className={textStyles[variant]}>
-        {typeof children === 'string' ? children : children}
-      </Text>
+      <Text className={textStyles[variant]}>{children}</Text>
     </Pressable>
   );
 }
