@@ -62,6 +62,10 @@ const STAGE_DELAY_MS = {
   confirmed: 300,
 } as const;
 
+// Ranking trade-off: how many km one rating star is "worth" when scoring
+// candidates. Higher = rating matters more relative to proximity.
+const RATING_WEIGHT_KM = 5;
+
 function detectService(msg: string): ServiceCategory | null {
   const lower = msg.toLowerCase();
   for (const [category, keywords] of Object.entries(SERVICE_KEYWORDS)) {
@@ -305,7 +309,8 @@ export async function* runAgent(
     .sort((a, b) => {
       // Composite score: lower distance + higher rating = better
       const distScore = a.distanceKm - b.distanceKm; // lower is better
-      const ratingScore = (b.provider.rating - a.provider.rating) * 5; // higher is better, weighted
+      const ratingScore =
+        (b.provider.rating - a.provider.rating) * RATING_WEIGHT_KM; // higher is better
       return distScore + ratingScore;
     });
 
