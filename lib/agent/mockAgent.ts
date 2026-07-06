@@ -52,6 +52,16 @@ function delay(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+// Simulated "thinking" pauses between streamed stages, so the mock agent feels
+// like it's working rather than dumping every event at once.
+const STAGE_DELAY_MS = {
+  understanding: 500,
+  searching: 700,
+  ranking: 400,
+  booking: 1000,
+  confirmed: 300,
+} as const;
+
 function detectService(msg: string): ServiceCategory | null {
   const lower = msg.toLowerCase();
   for (const [category, keywords] of Object.entries(SERVICE_KEYWORDS)) {
@@ -243,7 +253,7 @@ export async function* runAgent(
     extracted,
     usedDefaultLocation,
   };
-  await delay(500);
+  await delay(STAGE_DELAY_MS.understanding);
 
   // 2. Branching — check for missing info
   if (!service) {
@@ -282,7 +292,7 @@ export async function* runAgent(
     near: location,
     category: service,
   };
-  await delay(700);
+  await delay(STAGE_DELAY_MS.searching);
 
   // 4. Filter + rank
   const userCoords = getCoordsForSector(location);
@@ -303,7 +313,7 @@ export async function* runAgent(
     type: 'ranking',
     candidateCount: candidates.length,
   };
-  await delay(400);
+  await delay(STAGE_DELAY_MS.ranking);
 
   // 5. Recommendation
   const top = candidates[0];
@@ -341,14 +351,14 @@ export async function* confirmBooking(
     provider,
     slot,
   };
-  await delay(1000);
+  await delay(STAGE_DELAY_MS.booking);
 
   const bookingId = `b_${Date.now()}`;
   yield {
     type: 'confirmed',
     bookingId,
   };
-  await delay(300);
+  await delay(STAGE_DELAY_MS.confirmed);
 
   const reminderTime = computeReminderTime(slot);
   yield {
