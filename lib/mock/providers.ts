@@ -19,6 +19,13 @@ export type Provider = {
   availableSlots: string[];
 };
 
+/**
+ * Default sector used when the user hasn't set a location and none can be
+ * detected — both the settings store's initial value and the coordinate
+ * fallback point here, so they can't drift apart.
+ */
+export const DEFAULT_SECTOR = 'F-10/3';
+
 /** Sector center coordinates for Islamabad */
 export const SECTOR_COORDS: Record<string, { lat: number; lng: number }> = {
   'F-6': { lat: 33.7295, lng: 73.0775 },

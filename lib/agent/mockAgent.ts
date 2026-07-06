@@ -1,5 +1,5 @@
 import type { ServiceCategory } from '../mock/providers';
-import { providers, SECTOR_COORDS } from '../mock/providers';
+import { providers, SECTOR_COORDS, DEFAULT_SECTOR } from '../mock/providers';
 import { haversineKm } from '../util/distance';
 import { parseSlotTo24h, format12h } from '../util/time';
 import { CATEGORY_NOUN } from '../categories';
@@ -137,8 +137,8 @@ function getCoordsForSector(sector: string): { lat: number; lng: number } {
     if (key.startsWith(base)) return coords;
   }
 
-  // Fallback to F-10/3
-  return SECTOR_COORDS['F-10/3'];
+  // Fallback to the default sector
+  return SECTOR_COORDS[DEFAULT_SECTOR];
 }
 
 const WEEKDAYS = [
