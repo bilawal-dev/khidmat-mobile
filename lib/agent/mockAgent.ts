@@ -2,6 +2,7 @@ import type { ServiceCategory } from '../mock/providers';
 import { providers, SECTOR_COORDS } from '../mock/providers';
 import { haversineKm } from '../util/distance';
 import { parseSlotTo24h, format12h } from '../util/time';
+import { CATEGORY_NOUN } from '../categories';
 import type { AgentEvent, ExtractedIntent } from './types';
 
 // ── Keyword tables ──────────────────────────────────────────────
@@ -312,7 +313,7 @@ export async function* runAgent(
   if (!suggestedSlot) return;
 
   // Build human-friendly reasoning
-  const reasoning = `Closest available ${service === 'ac' ? 'technician' : service === 'plumber' ? 'plumber' : service === 'electrician' ? 'electrician' : service === 'tutor' ? 'tutor' : 'beautician'} with ${top.provider.rating}★ from ${top.provider.reviewCount} reviews.`;
+  const reasoning = `Closest available ${CATEGORY_NOUN[service]} with ${top.provider.rating}★ from ${top.provider.reviewCount} reviews.`;
 
   const { dayLabel, daysOffset } = resolveSchedule(time);
   const scheduledTimestamp = computeScheduledTimestamp(daysOffset, suggestedSlot);

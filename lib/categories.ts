@@ -33,6 +33,15 @@ export const CATEGORY_ROLE_LABEL: Record<ServiceCategory, string> = {
   beautician: 'Beautician',
 };
 
+/** Lowercase noun for inline sentences, e.g. "Closest available technician". */
+export const CATEGORY_NOUN: Record<ServiceCategory, string> = {
+  ac: 'technician',
+  plumber: 'plumber',
+  electrician: 'electrician',
+  tutor: 'tutor',
+  beautician: 'beautician',
+};
+
 const FALLBACK_EMOJI = '🛠';
 
 /** Emoji for a category, tolerant of unknown/loosely-typed values. */
