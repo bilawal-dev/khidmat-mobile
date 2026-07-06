@@ -1,6 +1,7 @@
 import type { ServiceCategory } from '../mock/providers';
 import { providers, SECTOR_COORDS } from '../mock/providers';
 import { haversineKm } from '../util/distance';
+import { parseSlotTo24h, format12h } from '../util/time';
 import type { AgentEvent, ExtractedIntent } from './types';
 
 // ── Keyword tables ──────────────────────────────────────────────
@@ -159,40 +160,21 @@ function resolveSchedule(
 function computeScheduledTimestamp(daysOffset: number, slot: string): number {
   const date = new Date();
   date.setDate(date.getDate() + daysOffset);
-  const m = slot.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
-  if (m) {
-    let h = parseInt(m[1]);
-    const min = parseInt(m[2]);
-    if (m[3].toUpperCase() === 'PM' && h !== 12) h += 12;
-    if (m[3].toUpperCase() === 'AM' && h === 12) h = 0;
-    date.setHours(h, min, 0, 0);
+  const parsed = parseSlotTo24h(slot);
+  if (parsed) {
+    date.setHours(parsed.hour, parsed.minute, 0, 0);
   }
   return date.getTime();
 }
 
 function computeReminderTime(slot: string): string {
   // Parse slot like '10:00 AM' → compute 1 hour before
-  const parts = slot.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
-  if (!parts) return '1 hour before';
+  const parsed = parseSlotTo24h(slot);
+  if (!parsed) return '1 hour before';
 
-  let hour = parseInt(parts[1]);
-  const minutes = parts[2];
-  const period = parts[3].toUpperCase();
-
-  // Convert to 24h for math
-  let hour24 = hour;
-  if (period === 'PM' && hour !== 12) hour24 += 12;
-  if (period === 'AM' && hour === 12) hour24 = 0;
-
-  // Subtract 1 hour
-  hour24 = (hour24 - 1 + 24) % 24;
-
-  // Convert back to 12h
-  const newPeriod = hour24 >= 12 ? 'PM' : 'AM';
-  let newHour = hour24 % 12;
-  if (newHour === 0) newHour = 12;
-
-  return `${newHour}:${minutes} ${newPeriod}`;
+  const minutes = String(parsed.minute).padStart(2, '0');
+  const hourBefore = (parsed.hour - 1 + 24) % 24;
+  return format12h(hourBefore, minutes);
 }
 
 // ── Main agent generator ────────────────────────────────────────
