@@ -16,27 +16,32 @@ import { ChatBubble } from '@/components/ChatBubble';
 import { ExtractedFieldsRow } from '@/components/ExtractedFieldsRow';
 import { Button } from '@/components/Button';
 import { useBookingsStore } from '@/lib/stores/useBookingsStore';
+import type { BookingStatus } from '@/lib/stores/useBookingsStore';
 import { providers } from '@/lib/mock/providers';
 import type { AgentEvent } from '@/lib/agent/types';
 import { categoryEmoji, categoryServiceLabel } from '@/lib/categories';
 
 // ── Status Timeline ─────────────────────────────────────────────
 
-const TIMELINE_STEPS = [
-  { key: 'confirmed', label: 'Confirmed', icon: 'checkmark-circle' as const },
+const TIMELINE_STEPS: {
+  key: BookingStatus;
+  label: string;
+  icon: 'checkmark-circle' | 'alarm' | 'checkmark-done-circle';
+}[] = [
+  { key: 'confirmed', label: 'Confirmed', icon: 'checkmark-circle' },
   {
     key: 'reminded',
     label: 'Reminder scheduled',
-    icon: 'alarm' as const,
+    icon: 'alarm',
   },
   {
     key: 'completed',
     label: 'Completed',
-    icon: 'checkmark-done-circle' as const,
+    icon: 'checkmark-done-circle',
   },
 ];
 
-function getStepIndex(status: string): number {
+function getStepIndex(status: BookingStatus): number {
   if (status === 'cancelled') return -1;
   const idx = TIMELINE_STEPS.findIndex((s) => s.key === status);
   return idx >= 0 ? idx : 0;
