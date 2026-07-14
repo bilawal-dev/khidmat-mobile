@@ -44,6 +44,9 @@ export const SECTOR_COORDS: Record<string, { lat: number; lng: number }> = {
   'I-9': { lat: 33.652, lng: 73.07 },
 };
 
+/** Known sector names, derived from the coord table so the two can't drift. */
+export const SECTORS = Object.keys(SECTOR_COORDS);
+
 export const providers: Provider[] = [
   // ── AC (3) ──────────────────────────────────────────
   {

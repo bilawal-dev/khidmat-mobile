@@ -12,23 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSettingsStore } from '@/lib/stores/useSettingsStore';
 import { useBookingsStore } from '@/lib/stores/useBookingsStore';
 import { Button } from '@/components/Button';
-
-const SECTOR_OPTIONS = [
-  'F-6',
-  'F-7',
-  'F-8/1',
-  'F-8/2',
-  'F-10/1',
-  'F-10/3',
-  'F-11/1',
-  'F-11/3',
-  'G-9',
-  'G-10',
-  'G-11',
-  'G-13',
-  'I-8/3',
-  'I-9',
-];
+import { SECTORS as SECTOR_OPTIONS } from '@/lib/mock/providers';
 
 export default function SettingsScreen() {
   const defaultLocation = useSettingsStore((s) => s.defaultLocation);
