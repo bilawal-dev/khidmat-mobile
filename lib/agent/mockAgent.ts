@@ -3,6 +3,7 @@ import { providers, SECTOR_COORDS, DEFAULT_SECTOR } from '../mock/providers';
 import { haversineKm } from '../util/distance';
 import { parseSlotTo24h, format12h } from '../util/time';
 import { CATEGORY_NOUN } from '../categories';
+import { makeId } from '../util/id';
 import type { AgentEvent, ExtractedIntent } from './types';
 
 // ── Keyword tables ──────────────────────────────────────────────
@@ -362,7 +363,7 @@ export async function* confirmBooking(
   };
   await delay(STAGE_DELAY_MS.booking);
 
-  const bookingId = `b_${Date.now()}`;
+  const bookingId = makeId('b');
   yield {
     type: 'confirmed',
     bookingId,

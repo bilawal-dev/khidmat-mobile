@@ -23,6 +23,7 @@ import { runAgent, confirmBooking, DEFAULT_REMINDER_LABEL } from '@/lib/agent/mo
 import { useSettingsStore } from '@/lib/stores/useSettingsStore';
 import { useBookingsStore } from '@/lib/stores/useBookingsStore';
 import { categoryRoleLabel } from '@/lib/categories';
+import { makeId } from '@/lib/util/id';
 import type { AgentEvent } from '@/lib/agent/types';
 
 type RecommendationEvent = Extract<AgentEvent, { type: 'recommendation' }>;
@@ -137,7 +138,7 @@ export default function ChatScreen() {
   const addAgentMessage = useCallback(
     (event: AgentEvent) => {
       const msg: ChatMessage = {
-        id: `agent_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+        id: makeId('agent'),
         role: 'agent',
         event,
       };
@@ -165,7 +166,7 @@ export default function ChatScreen() {
 
     // Add user message
     const userMsg: ChatMessage = {
-      id: `user_${Date.now()}`,
+      id: makeId('user'),
       role: 'user',
       text,
     };
