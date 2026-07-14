@@ -66,6 +66,10 @@ const STAGE_DELAY_MS = {
 // candidates. Higher = rating matters more relative to proximity.
 const RATING_WEIGHT_KM = 5;
 
+// Fallback reminder label used when a slot time can't be parsed into a
+// concrete "before" time. Shared with the chat screen's booking fallback.
+export const DEFAULT_REMINDER_LABEL = '1 hour before';
+
 function detectService(msg: string): ServiceCategory | null {
   const lower = msg.toLowerCase();
   for (const [category, keywords] of Object.entries(SERVICE_KEYWORDS)) {
@@ -185,7 +189,7 @@ function computeScheduledTimestamp(daysOffset: number, slot: string): number {
 function computeReminderTime(slot: string): string {
   // Parse slot like '10:00 AM' → compute 1 hour before
   const parsed = parseSlotTo24h(slot);
-  if (!parsed) return '1 hour before';
+  if (!parsed) return DEFAULT_REMINDER_LABEL;
 
   const minutes = String(parsed.minute).padStart(2, '0');
   const hourBefore = (parsed.hour - 1 + 24) % 24;

@@ -19,7 +19,7 @@ import { ExtractedFieldsRow } from '@/components/ExtractedFieldsRow';
 import { ProviderCard } from '@/components/ProviderCard';
 import { InputBar } from '@/components/InputBar';
 import { ExamplePromptChip } from '@/components/ExamplePromptChip';
-import { runAgent, confirmBooking } from '@/lib/agent/mockAgent';
+import { runAgent, confirmBooking, DEFAULT_REMINDER_LABEL } from '@/lib/agent/mockAgent';
 import { useSettingsStore } from '@/lib/stores/useSettingsStore';
 import { useBookingsStore } from '@/lib/stores/useBookingsStore';
 import { categoryRoleLabel } from '@/lib/categories';
@@ -224,7 +224,7 @@ export default function ChatScreen() {
             scheduledFor: `${rec.dayLabel}, ${rec.suggestedSlot}`,
             scheduledTimestamp: rec.scheduledTimestamp,
             status: 'confirmed',
-            reminderAt: reminderEvent?.at ?? '1 hour before',
+            reminderAt: reminderEvent?.at ?? DEFAULT_REMINDER_LABEL,
             agentThread: [...agentEventsRef.current],
             createdAt: Date.now(),
           });
