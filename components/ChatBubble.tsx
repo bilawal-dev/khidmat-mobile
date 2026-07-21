@@ -1,10 +1,19 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 
+type ChatBubbleTone = 'default' | 'success';
+
 type ChatBubbleProps = {
   side: 'user' | 'agent';
-  tone?: 'default' | 'success';
+  tone?: ChatBubbleTone;
   children: React.ReactNode;
+};
+
+// User bubbles ignore tone; agent bubbles vary by tone.
+const USER_STYLE = { bg: 'bg-primary', text: 'text-white' } as const;
+const AGENT_STYLES: Record<ChatBubbleTone, { bg: string; text: string }> = {
+  default: { bg: 'bg-gray-100', text: 'text-gray-900' },
+  success: { bg: 'bg-green-50', text: 'text-green-900' },
 };
 
 export function ChatBubble({
@@ -15,18 +24,9 @@ export function ChatBubble({
   const isUser = side === 'user';
 
   const containerAlign = isUser ? 'items-end' : 'items-start';
-
-  const bubbleBg = isUser
-    ? 'bg-primary'
-    : tone === 'success'
-      ? 'bg-green-50'
-      : 'bg-gray-100';
-
-  const textColor = isUser
-    ? 'text-white'
-    : tone === 'success'
-      ? 'text-green-900'
-      : 'text-gray-900';
+  const { bg: bubbleBg, text: textColor } = isUser
+    ? USER_STYLE
+    : AGENT_STYLES[tone];
 
   return (
     <View className={`mb-2 ${containerAlign}`}>
