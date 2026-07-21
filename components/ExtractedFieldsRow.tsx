@@ -8,6 +8,13 @@ type ExtractedFieldsRowProps = {
   time: string | null;
 };
 
+// Placeholder shown for a field the agent couldn't extract.
+const EMPTY = {
+  bg: 'bg-gray-200',
+  text: 'text-gray-500',
+  iconColor: '#6b7280',
+} as const;
+
 export function ExtractedFieldsRow({
   service,
   location,
@@ -16,48 +23,45 @@ export function ExtractedFieldsRow({
   const fields = [
     {
       icon: 'construct' as const,
-      label: service ?? 'Unknown',
-      color: service ? 'bg-primary-100 text-primary-800' : 'bg-gray-200 text-gray-500',
+      value: service,
+      bg: 'bg-primary-100',
+      text: 'text-primary-800',
+      iconColor: '#9A3412',
     },
     {
       icon: 'location' as const,
-      label: location ?? 'Unknown',
-      color: location ? 'bg-blue-100 text-blue-800' : 'bg-gray-200 text-gray-500',
+      value: location,
+      bg: 'bg-blue-100',
+      text: 'text-blue-800',
+      iconColor: '#1e40af',
     },
     {
       icon: 'time' as const,
-      label: time ?? 'Unknown',
-      color: time ? 'bg-purple-100 text-purple-800' : 'bg-gray-200 text-gray-500',
+      value: time,
+      bg: 'bg-purple-100',
+      text: 'text-purple-800',
+      iconColor: '#6b21a8',
     },
   ];
 
   return (
     <View className="mt-2 flex-row flex-wrap gap-2">
-      {fields.map((field) => (
-        <View
-          key={field.icon}
-          className={`flex-row items-center rounded-full px-3 py-1.5 ${field.color.split(' ')[0]}`}
-        >
-          <Ionicons
-            name={field.icon}
-            size={13}
-            color={
-              field.color.includes('primary')
-                ? '#9A3412'
-                : field.color.includes('blue')
-                  ? '#1e40af'
-                  : field.color.includes('purple')
-                    ? '#6b21a8'
-                    : '#6b7280'
-            }
-          />
-          <Text
-            className={`ml-1.5 text-xs font-semibold capitalize ${field.color.split(' ')[1]}`}
+      {fields.map((field) => {
+        const style = field.value ? field : EMPTY;
+        return (
+          <View
+            key={field.icon}
+            className={`flex-row items-center rounded-full px-3 py-1.5 ${style.bg}`}
           >
-            {field.label}
-          </Text>
-        </View>
-      ))}
+            <Ionicons name={field.icon} size={13} color={style.iconColor} />
+            <Text
+              className={`ml-1.5 text-xs font-semibold capitalize ${style.text}`}
+            >
+              {field.value ?? 'Unknown'}
+            </Text>
+          </View>
+        );
+      })}
     </View>
   );
 }
