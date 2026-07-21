@@ -18,6 +18,7 @@ export function InputBar({
   disabled = false,
 }: InputBarProps) {
   const isEmpty = value.trim().length === 0;
+  const sendDisabled = isEmpty || disabled;
 
   return (
     <View className="flex-row items-end border-t border-gray-100 bg-white px-3 pb-2 pt-2">
@@ -33,15 +34,15 @@ export function InputBar({
       />
       <Pressable
         onPress={onSend}
-        disabled={isEmpty || disabled}
+        disabled={sendDisabled}
         className={`h-11 w-11 items-center justify-center rounded-full ${
-          isEmpty || disabled ? 'bg-gray-200' : 'bg-primary active:bg-primary-600'
+          sendDisabled ? 'bg-gray-200' : 'bg-primary active:bg-primary-600'
         }`}
       >
         <Ionicons
           name="send"
           size={18}
-          color={isEmpty || disabled ? '#9CA3AF' : '#FFFFFF'}
+          color={sendDisabled ? '#9CA3AF' : '#FFFFFF'}
         />
       </Pressable>
     </View>
