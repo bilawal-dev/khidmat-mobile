@@ -21,6 +21,7 @@ import { providers } from '@/lib/mock/providers';
 import type { AgentEvent } from '@/lib/agent/types';
 import { categoryEmoji, categoryServiceLabel } from '@/lib/categories';
 import { formatLocationLabel } from '@/lib/util/location';
+import { colors } from '@/lib/theme/colors';
 
 // ── Status Timeline ─────────────────────────────────────────────
 
@@ -187,7 +188,7 @@ export default function BookingDetailScreen() {
           onPress={() => router.back()}
           className="mr-3 h-9 w-9 items-center justify-center rounded-full active:bg-gray-100"
         >
-          <Ionicons name="arrow-back" size={22} color="#F97316" />
+          <Ionicons name="arrow-back" size={22} color={colors.primary} />
         </Pressable>
         <Text className="text-lg font-bold text-gray-900">
           Booking Details
@@ -217,13 +218,13 @@ export default function BookingDetailScreen() {
       {/* Booking Info */}
       <View className="mb-4 rounded-2xl border border-gray-100 bg-gray-50 p-4">
         <View className="mb-3 flex-row items-center">
-          <Ionicons name="time-outline" size={18} color="#6b7280" />
+          <Ionicons name="time-outline" size={18} color={colors.gray500} />
           <Text className="ml-2 text-sm text-gray-700">
             {booking.scheduledFor}
           </Text>
         </View>
         <View className="mb-3 flex-row items-center">
-          <Ionicons name="location-outline" size={18} color="#6b7280" />
+          <Ionicons name="location-outline" size={18} color={colors.gray500} />
           <Text className="ml-2 text-sm text-gray-700">{booking.sector}</Text>
         </View>
         {provider?.phone && (
@@ -231,7 +232,7 @@ export default function BookingDetailScreen() {
             onPress={handleCall}
             className="flex-row items-center active:opacity-60"
           >
-            <Ionicons name="call-outline" size={18} color="#F97316" />
+            <Ionicons name="call-outline" size={18} color={colors.primary} />
             <Text className="ml-2 text-sm font-medium text-primary">
               {provider.phone}
             </Text>
@@ -250,7 +251,7 @@ export default function BookingDetailScreen() {
         <Ionicons
           name={showThread ? 'chevron-up' : 'chevron-down'}
           size={18}
-          color="#9CA3AF"
+          color={colors.gray400}
         />
       </Pressable>
 
@@ -280,7 +281,7 @@ export default function BookingDetailScreen() {
                   <Ionicons
                     name={step.icon}
                     size={16}
-                    color={isActive ? '#FFFFFF' : '#9CA3AF'}
+                    color={isActive ? colors.white : colors.gray400}
                   />
                 </View>
                 {idx < TIMELINE_STEPS.length - 1 && (
@@ -311,7 +312,7 @@ export default function BookingDetailScreen() {
 
         {booking.status === 'cancelled' && (
           <View className="mt-2 flex-row items-center rounded-xl bg-red-50 px-3 py-2">
-            <Ionicons name="close-circle" size={16} color="#DC2626" />
+            <Ionicons name="close-circle" size={16} color={colors.red600} />
             <Text className="ml-2 text-sm font-medium text-red-600">
               This booking was cancelled
             </Text>

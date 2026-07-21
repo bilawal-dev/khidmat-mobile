@@ -3,6 +3,7 @@ import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { Provider } from '@/lib/mock/providers';
 import { categoryEmoji, categoryServiceLabel } from '@/lib/categories';
+import { colors } from '@/lib/theme/colors';
 
 type ProviderCardProps = {
   provider: Provider;
@@ -41,7 +42,7 @@ export function ProviderCard({
       {/* Stats row */}
       <View className="mt-3 flex-row items-center gap-3">
         <View className="flex-row items-center">
-          <Ionicons name="location-outline" size={14} color="#6b7280" />
+          <Ionicons name="location-outline" size={14} color={colors.gray500} />
           <Text className="ml-1 text-xs text-gray-600">
             {distanceKm} km away
           </Text>
@@ -63,7 +64,7 @@ export function ProviderCard({
           {provider.priceRange}
         </Text>
         <View className="flex-row items-center rounded-full bg-primary-50 px-2.5 py-1">
-          <Ionicons name="time-outline" size={12} color="#EA580C" />
+          <Ionicons name="time-outline" size={12} color={colors.primaryActive} />
           <Text className="ml-1 text-xs font-semibold text-primary-700">
             {dayLabel}, {suggestedSlot}
           </Text>

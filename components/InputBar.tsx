@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, TextInput, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { colors } from '@/lib/theme/colors';
 
 type InputBarProps = {
   value: string;
@@ -25,7 +26,7 @@ export function InputBar({
       <TextInput
         className="mr-2 max-h-24 min-h-[44px] flex-1 rounded-2xl bg-gray-50 px-4 py-3 text-[15px] text-gray-900"
         placeholder={placeholder}
-        placeholderTextColor="#9CA3AF"
+        placeholderTextColor={colors.gray400}
         value={value}
         onChangeText={onChangeText}
         multiline
@@ -42,7 +43,7 @@ export function InputBar({
         <Ionicons
           name="send"
           size={18}
-          color={sendDisabled ? '#9CA3AF' : '#FFFFFF'}
+          color={sendDisabled ? colors.gray400 : colors.white}
         />
       </Pressable>
     </View>
