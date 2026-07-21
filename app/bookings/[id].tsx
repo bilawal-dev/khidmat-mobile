@@ -20,6 +20,7 @@ import type { BookingStatus } from '@/lib/stores/useBookingsStore';
 import { providers } from '@/lib/mock/providers';
 import type { AgentEvent } from '@/lib/agent/types';
 import { categoryEmoji, categoryServiceLabel } from '@/lib/categories';
+import { formatLocationLabel } from '@/lib/util/location';
 
 // ── Status Timeline ─────────────────────────────────────────────
 
@@ -123,11 +124,10 @@ export default function BookingDetailScreen() {
                   ? categoryServiceLabel(event.extracted.service)
                   : null
               }
-              location={
-                event.usedDefaultLocation
-                  ? `${event.extracted.location} (your home)`
-                  : event.extracted.location
-              }
+              location={formatLocationLabel(
+                event.extracted.location,
+                event.usedDefaultLocation,
+              )}
               time={event.extracted.time}
             />
           </ChatBubble>

@@ -24,6 +24,7 @@ import { useSettingsStore } from '@/lib/stores/useSettingsStore';
 import { useBookingsStore } from '@/lib/stores/useBookingsStore';
 import { categoryRoleLabel } from '@/lib/categories';
 import { makeId } from '@/lib/util/id';
+import { formatLocationLabel } from '@/lib/util/location';
 import type { AgentEvent } from '@/lib/agent/types';
 
 type RecommendationEvent = Extract<AgentEvent, { type: 'recommendation' }>;
@@ -274,9 +275,10 @@ export default function ChatScreen() {
       switch (event.type) {
         case 'understanding': {
           const { extracted, usedDefaultLocation } = event;
-          const locationLabel = usedDefaultLocation
-            ? `${extracted.location} (your home)`
-            : extracted.location;
+          const locationLabel = formatLocationLabel(
+            extracted.location,
+            usedDefaultLocation,
+          );
           return (
             <ChatBubble side="agent">
               <Text className="text-[15px] leading-5 text-gray-900">
