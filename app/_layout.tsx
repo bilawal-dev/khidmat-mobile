@@ -2,6 +2,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 
+import { colors } from '@/lib/theme/colors';
 import '../global.css';
 
 export default function RootLayout() {
@@ -11,7 +12,7 @@ export default function RootLayout() {
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: '#FFFFFF' },
+          contentStyle: { backgroundColor: colors.white },
         }}
       >
         <Stack.Screen name="(tabs)" />
