@@ -27,6 +27,7 @@ import { makeId } from '@/lib/util/id';
 import { formatLocationLabel } from '@/lib/util/location';
 import { colors } from '@/lib/theme/colors';
 import { formatSchedule } from '@/lib/util/schedule';
+import { findEventOfType } from '@/lib/agent/findEvent';
 import type { AgentEvent } from '@/lib/agent/types';
 
 type RecommendationEvent = Extract<AgentEvent, { type: 'recommendation' }>;
@@ -209,13 +210,10 @@ export default function ChatScreen() {
           bookingFlowEvents.push(event);
         }
 
-        const confirmedEvent = bookingFlowEvents.find(
-          (e): e is Extract<AgentEvent, { type: 'confirmed' }> =>
-            e.type === 'confirmed',
-        );
-        const reminderEvent = bookingFlowEvents.find(
-          (e): e is Extract<AgentEvent, { type: 'reminder_scheduled' }> =>
-            e.type === 'reminder_scheduled',
+        const confirmedEvent = findEventOfType(bookingFlowEvents, 'confirmed');
+        const reminderEvent = findEventOfType(
+          bookingFlowEvents,
+          'reminder_scheduled',
         );
 
         if (confirmedEvent) {
