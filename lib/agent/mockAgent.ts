@@ -192,9 +192,8 @@ function computeReminderTime(slot: string): string {
   const parsed = parseSlotTo24h(slot);
   if (!parsed) return DEFAULT_REMINDER_LABEL;
 
-  const minutes = String(parsed.minute).padStart(2, '0');
   const hourBefore = (parsed.hour - 1 + 24) % 24;
-  return format12h(hourBefore, minutes);
+  return format12h(hourBefore, parsed.minute);
 }
 
 // ── Main agent generator ────────────────────────────────────────

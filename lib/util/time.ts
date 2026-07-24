@@ -17,10 +17,12 @@ export function parseSlotTo24h(slot: string): { hour: number; minute: number } |
   return { hour, minute };
 }
 
-/** Format 24-hour components back into a "H:MM AM/PM" slot string. */
-export function format12h(hour24: number, minute: string): string {
+/** Format 24-hour components back into a "H:MM AM/PM" slot string. Takes a
+ *  numeric minute (matching parseSlotTo24h's output) and zero-pads it. */
+export function format12h(hour24: number, minute: number): string {
   const period = hour24 >= 12 ? 'PM' : 'AM';
   let hour = hour24 % 12;
   if (hour === 0) hour = 12;
-  return `${hour}:${minute} ${period}`;
+  const mm = String(minute).padStart(2, '0');
+  return `${hour}:${mm} ${period}`;
 }
