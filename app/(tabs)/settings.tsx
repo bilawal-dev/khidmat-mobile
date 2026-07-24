@@ -12,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSettingsStore } from '@/lib/stores/useSettingsStore';
 import { useBookingsStore } from '@/lib/stores/useBookingsStore';
 import { Button } from '@/components/Button';
-import { SECTORS as SECTOR_OPTIONS } from '@/lib/mock/providers';
+import { SECTORS as SECTOR_OPTIONS, DEFAULT_SECTOR } from '@/lib/mock/providers';
 import { colors } from '@/lib/theme/colors';
 
 export default function SettingsScreen() {
@@ -97,7 +97,7 @@ export default function SettingsScreen() {
             onChangeText={handleLocationChange}
             onFocus={() => setShowDropdown(true)}
             onBlur={handleBlur}
-            placeholder="e.g. F-10/3"
+            placeholder={`e.g. ${DEFAULT_SECTOR}`}
             placeholderTextColor={colors.gray400}
             autoCapitalize="characters"
             autoCorrect={false}
