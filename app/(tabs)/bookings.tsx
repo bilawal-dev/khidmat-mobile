@@ -13,6 +13,7 @@ import { StatusBadge } from '@/components/StatusBadge';
 import { useBookingsStore } from '@/lib/stores/useBookingsStore';
 import { categoryEmoji, categoryServiceLabel } from '@/lib/categories';
 import { colors } from '@/lib/theme/colors';
+import { pluralize } from '@/lib/util/text';
 
 export default function BookingsScreen() {
   const rawBookings = useBookingsStore((s) => s.bookings);
@@ -60,7 +61,7 @@ export default function BookingsScreen() {
       <View className="border-b border-gray-50 px-5 pb-3 pt-4">
         <Text className="text-lg font-bold text-gray-900">Bookings</Text>
         <Text className="text-xs text-gray-400">
-          {bookings.length} booking{bookings.length !== 1 ? 's' : ''}
+          {bookings.length} {pluralize(bookings.length, 'booking')}
         </Text>
       </View>
       <ScrollView
