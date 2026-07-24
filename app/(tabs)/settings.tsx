@@ -13,6 +13,7 @@ import { useSettingsStore } from '@/lib/stores/useSettingsStore';
 import { useBookingsStore } from '@/lib/stores/useBookingsStore';
 import { Button } from '@/components/Button';
 import { SECTORS as SECTOR_OPTIONS } from '@/lib/mock/providers';
+import { colors } from '@/lib/theme/colors';
 
 export default function SettingsScreen() {
   const defaultLocation = useSettingsStore((s) => s.defaultLocation);
@@ -97,7 +98,7 @@ export default function SettingsScreen() {
             onFocus={() => setShowDropdown(true)}
             onBlur={handleBlur}
             placeholder="e.g. F-10/3"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.gray400}
             autoCapitalize="characters"
             autoCorrect={false}
           />

@@ -12,6 +12,7 @@ import { router } from 'expo-router';
 import { StatusBadge } from '@/components/StatusBadge';
 import { useBookingsStore } from '@/lib/stores/useBookingsStore';
 import { categoryEmoji, categoryServiceLabel } from '@/lib/categories';
+import { colors } from '@/lib/theme/colors';
 
 export default function BookingsScreen() {
   const rawBookings = useBookingsStore((s) => s.bookings);
@@ -69,8 +70,8 @@ export default function BookingsScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#F97316"
-            colors={['#F97316']}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
           />
         }
       >

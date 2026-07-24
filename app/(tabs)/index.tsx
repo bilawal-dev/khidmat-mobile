@@ -25,6 +25,7 @@ import { useBookingsStore } from '@/lib/stores/useBookingsStore';
 import { categoryRoleLabel } from '@/lib/categories';
 import { makeId } from '@/lib/util/id';
 import { formatLocationLabel } from '@/lib/util/location';
+import { colors } from '@/lib/theme/colors';
 import type { AgentEvent } from '@/lib/agent/types';
 
 type RecommendationEvent = Extract<AgentEvent, { type: 'recommendation' }>;
@@ -411,7 +412,7 @@ export default function ChatScreen() {
               onPress={handleNewChat}
               className="h-9 w-9 items-center justify-center rounded-full bg-gray-50 active:bg-gray-100"
             >
-              <Ionicons name="create-outline" size={18} color="#6b7280" />
+              <Ionicons name="create-outline" size={18} color={colors.gray500} />
             </Pressable>
           )}
         </View>
