@@ -27,6 +27,27 @@ Currently runs against an in-process mock agent at [lib/agent/mockAgent.ts](lib/
 | `app/bookings/[id].tsx` | Booking detail + preserved agent reasoning + cancel |
 | `app/(tabs)/settings.tsx` | Default location + about + clear-all |
 
+## Project layout
+
+```
+app/
+├── (tabs)/             chat / bookings / settings screens + tab layout
+├── bookings/[id].tsx   booking detail + preserved agent thread
+└── _layout.tsx         root stack + keyboard provider
+components/             ChatBubble, ProviderCard, InputBar, StatusBadge,
+                        ExtractedFieldsRow, ChatLoaders, ExamplePromptChip, Button
+lib/
+├── agent/
+│   ├── mockAgent.ts    in-process agent (understanding → … → booking)
+│   ├── types.ts        AgentEvent wire contract (mirrors server)
+│   └── findEvent.ts    typed AgentEvent finder
+├── categories.ts       service-category labels / emoji / nouns
+├── mock/providers.ts   15-entry provider catalog + sector coords
+├── stores/             Zustand stores (bookings, settings) + storage keys
+├── theme/colors.ts     named colors for JS color props
+└── util/               distance, time, id, location, text, schedule, sectors
+```
+
 ## Local development
 
 Prerequisites: Node 20, npm, Expo Go on your phone (or an Android/iOS simulator).

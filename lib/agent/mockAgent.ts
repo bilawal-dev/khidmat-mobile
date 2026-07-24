@@ -1,10 +1,17 @@
 import type { ServiceCategory } from '../mock/providers';
-import { providers, SECTOR_COORDS, DEFAULT_SECTOR } from '../mock/providers';
+import { providers } from '../mock/providers';
 import { haversineKm } from '../util/distance';
+import { sectorCoords } from '../util/sectors';
 import { parseSlotTo24h, format12h } from '../util/time';
 import { CATEGORY_NOUN } from '../categories';
 import { makeId } from '../util/id';
 import type { AgentEvent, ExtractedIntent } from './types';
+
+/** Per-request context the chat screen passes into the mock agent. */
+export type AgentContext = {
+  defaultLocation: string;
+  conversationHistory: AgentEvent[];
+};
 
 // ── Keyword tables ──────────────────────────────────────────────
 
@@ -120,7 +127,8 @@ function resolveSlotFromTime(
   if (lower.includes('evening') || lower.includes('shaam')) {
     const evening = availableSlots.find((s) => {
       const hour = parseInt(s.split(':')[0]);
-      return (s.includes('PM') && hour >= 4) || (s.includes('PM') && hour === 12);
+      // 12 PM already satisfies hour >= 4, so no separate noon check is needed.
+      return s.includes('PM') && hour >= 4;
     });
     return evening ?? availableSlots[availableSlots.length - 1];
   }
@@ -130,20 +138,6 @@ function resolveSlotFromTime(
   }
 
   return availableSlots[0];
-}
-
-function getCoordsForSector(sector: string): { lat: number; lng: number } {
-  // Try exact match first
-  if (SECTOR_COORDS[sector]) return SECTOR_COORDS[sector];
-
-  // Try base sector (e.g. F-10 from F-10/3)
-  const base = sector.split('/')[0];
-  for (const [key, coords] of Object.entries(SECTOR_COORDS)) {
-    if (key.startsWith(base)) return coords;
-  }
-
-  // Fallback to the default sector
-  return SECTOR_COORDS[DEFAULT_SECTOR];
 }
 
 const WEEKDAYS = [
@@ -200,7 +194,7 @@ function computeReminderTime(slot: string): string {
 
 export async function* runAgent(
   userMessage: string,
-  context: { defaultLocation: string; conversationHistory: AgentEvent[] },
+  context: AgentContext,
 ): AsyncGenerator<AgentEvent> {
   // Check if this is a follow-up answer to a previous awaiting_user event
   const lastAwaiting = context.conversationHistory
@@ -303,7 +297,7 @@ export async function* runAgent(
   await delay(STAGE_DELAY_MS.searching);
 
   // 4. Filter + rank
-  const userCoords = getCoordsForSector(location);
+  const userCoords = sectorCoords(location);
   const candidates = providers
     .filter((p) => p.category === service)
     .map((p) => ({
