@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { colors } from '@/lib/theme/colors';
 
 type ExtractedFieldsRowProps = {
   service: string | null;
@@ -12,7 +13,7 @@ type ExtractedFieldsRowProps = {
 const EMPTY = {
   bg: 'bg-gray-200',
   text: 'text-gray-500',
-  iconColor: '#6b7280',
+  iconColor: colors.gray500,
 } as const;
 
 export function ExtractedFieldsRow({
@@ -26,21 +27,21 @@ export function ExtractedFieldsRow({
       value: service,
       bg: 'bg-primary-100',
       text: 'text-primary-800',
-      iconColor: '#9A3412',
+      iconColor: colors.primary800,
     },
     {
       icon: 'location' as const,
       value: location,
       bg: 'bg-blue-100',
       text: 'text-blue-800',
-      iconColor: '#1e40af',
+      iconColor: colors.blue800,
     },
     {
       icon: 'time' as const,
       value: time,
       bg: 'bg-purple-100',
       text: 'text-purple-800',
-      iconColor: '#6b21a8',
+      iconColor: colors.purple800,
     },
   ];
 

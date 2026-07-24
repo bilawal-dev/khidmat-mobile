@@ -12,4 +12,8 @@ export const colors = {
   gray400: '#9CA3AF',
   gray500: '#6B7280',
   red600: '#DC2626',
+  // Extracted-field chip icon colors (the -800 shades of each accent).
+  primary800: '#9A3412',
+  blue800: '#1E40AF',
+  purple800: '#6B21A8',
 } as const;
