@@ -26,6 +26,7 @@ import { categoryRoleLabel } from '@/lib/categories';
 import { makeId } from '@/lib/util/id';
 import { formatLocationLabel } from '@/lib/util/location';
 import { colors } from '@/lib/theme/colors';
+import { formatSchedule } from '@/lib/util/schedule';
 import type { AgentEvent } from '@/lib/agent/types';
 
 type RecommendationEvent = Extract<AgentEvent, { type: 'recommendation' }>;
@@ -224,7 +225,7 @@ export default function ChatScreen() {
             providerName: rec.provider.name,
             category: rec.provider.category,
             sector: rec.provider.sector,
-            scheduledFor: `${rec.dayLabel}, ${rec.suggestedSlot}`,
+            scheduledFor: formatSchedule(rec.dayLabel, rec.suggestedSlot),
             scheduledTimestamp: rec.scheduledTimestamp,
             status: 'confirmed',
             reminderAt: reminderEvent?.at ?? DEFAULT_REMINDER_LABEL,

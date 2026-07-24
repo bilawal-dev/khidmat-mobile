@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import type { Provider } from '@/lib/mock/providers';
 import { categoryEmoji, categoryServiceLabel } from '@/lib/categories';
 import { colors } from '@/lib/theme/colors';
+import { formatSchedule } from '@/lib/util/schedule';
 
 type ProviderCardProps = {
   provider: Provider;
@@ -66,7 +67,7 @@ export function ProviderCard({
         <View className="flex-row items-center rounded-full bg-primary-50 px-2.5 py-1">
           <Ionicons name="time-outline" size={12} color={colors.primaryActive} />
           <Text className="ml-1 text-xs font-semibold text-primary-700">
-            {dayLabel}, {suggestedSlot}
+            {formatSchedule(dayLabel, suggestedSlot)}
           </Text>
         </View>
       </View>
