@@ -1,6 +1,7 @@
 import type { ServiceCategory } from '../mock/providers';
-import { providers, SECTOR_COORDS, DEFAULT_SECTOR } from '../mock/providers';
+import { providers } from '../mock/providers';
 import { haversineKm } from '../util/distance';
+import { sectorCoords } from '../util/sectors';
 import { parseSlotTo24h, format12h } from '../util/time';
 import { CATEGORY_NOUN } from '../categories';
 import { makeId } from '../util/id';
@@ -130,20 +131,6 @@ function resolveSlotFromTime(
   }
 
   return availableSlots[0];
-}
-
-function getCoordsForSector(sector: string): { lat: number; lng: number } {
-  // Try exact match first
-  if (SECTOR_COORDS[sector]) return SECTOR_COORDS[sector];
-
-  // Try base sector (e.g. F-10 from F-10/3)
-  const base = sector.split('/')[0];
-  for (const [key, coords] of Object.entries(SECTOR_COORDS)) {
-    if (key.startsWith(base)) return coords;
-  }
-
-  // Fallback to the default sector
-  return SECTOR_COORDS[DEFAULT_SECTOR];
 }
 
 const WEEKDAYS = [
@@ -303,7 +290,7 @@ export async function* runAgent(
   await delay(STAGE_DELAY_MS.searching);
 
   // 4. Filter + rank
-  const userCoords = getCoordsForSector(location);
+  const userCoords = sectorCoords(location);
   const candidates = providers
     .filter((p) => p.category === service)
     .map((p) => ({
