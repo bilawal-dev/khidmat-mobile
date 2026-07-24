@@ -7,6 +7,12 @@ import { CATEGORY_NOUN } from '../categories';
 import { makeId } from '../util/id';
 import type { AgentEvent, ExtractedIntent } from './types';
 
+/** Per-request context the chat screen passes into the mock agent. */
+export type AgentContext = {
+  defaultLocation: string;
+  conversationHistory: AgentEvent[];
+};
+
 // ── Keyword tables ──────────────────────────────────────────────
 
 const SERVICE_KEYWORDS: Record<ServiceCategory, string[]> = {
@@ -187,7 +193,7 @@ function computeReminderTime(slot: string): string {
 
 export async function* runAgent(
   userMessage: string,
-  context: { defaultLocation: string; conversationHistory: AgentEvent[] },
+  context: AgentContext,
 ): AsyncGenerator<AgentEvent> {
   // Check if this is a follow-up answer to a previous awaiting_user event
   const lastAwaiting = context.conversationHistory
