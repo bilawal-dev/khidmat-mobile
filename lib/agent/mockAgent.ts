@@ -127,7 +127,8 @@ function resolveSlotFromTime(
   if (lower.includes('evening') || lower.includes('shaam')) {
     const evening = availableSlots.find((s) => {
       const hour = parseInt(s.split(':')[0]);
-      return (s.includes('PM') && hour >= 4) || (s.includes('PM') && hour === 12);
+      // 12 PM already satisfies hour >= 4, so no separate noon check is needed.
+      return s.includes('PM') && hour >= 4;
     });
     return evening ?? availableSlots[availableSlots.length - 1];
   }
