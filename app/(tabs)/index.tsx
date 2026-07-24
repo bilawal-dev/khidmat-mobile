@@ -1,10 +1,9 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import {
   View,
   Text,
   ScrollView,
   Platform,
-  Animated,
   Alert,
   Pressable,
 } from 'react-native';
@@ -19,6 +18,7 @@ import { ExtractedFieldsRow } from '@/components/ExtractedFieldsRow';
 import { ProviderCard } from '@/components/ProviderCard';
 import { InputBar } from '@/components/InputBar';
 import { ExamplePromptChip } from '@/components/ExamplePromptChip';
+import { FadeIn, TypingIndicator } from '@/components/ChatLoaders';
 import { runAgent, confirmBooking, DEFAULT_REMINDER_LABEL } from '@/lib/agent/mockAgent';
 import { useSettingsStore } from '@/lib/stores/useSettingsStore';
 import { useBookingsStore } from '@/lib/stores/useBookingsStore';
@@ -37,77 +37,6 @@ type RecommendationEvent = Extract<AgentEvent, { type: 'recommendation' }>;
 type ChatMessage =
   | { id: string; role: 'user'; text: string }
   | { id: string; role: 'agent'; event: AgentEvent };
-
-// ── Animated wrapper for fade-in ────────────────────────────────
-
-function FadeIn({ children }: { children: React.ReactNode }) {
-  const opacity = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.timing(opacity, {
-      toValue: 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-  }, [opacity]);
-
-  return <Animated.View style={{ opacity }}>{children}</Animated.View>;
-}
-
-// ── Dots loader ─────────────────────────────────────────────────
-
-function DotsLoader() {
-  const dot1 = useRef(new Animated.Value(0)).current;
-  const dot2 = useRef(new Animated.Value(0)).current;
-  const dot3 = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    const animate = (dot: Animated.Value, delay: number) => {
-      Animated.loop(
-        Animated.sequence([
-          Animated.delay(delay),
-          Animated.timing(dot, {
-            toValue: 1,
-            duration: 300,
-            useNativeDriver: true,
-          }),
-          Animated.timing(dot, {
-            toValue: 0,
-            duration: 300,
-            useNativeDriver: true,
-          }),
-        ]),
-      ).start();
-    };
-    animate(dot1, 0);
-    animate(dot2, 200);
-    animate(dot3, 400);
-  }, [dot1, dot2, dot3]);
-
-  return (
-    <View className="flex-row items-center gap-1">
-      {[dot1, dot2, dot3].map((dot, i) => (
-        <Animated.View
-          key={i}
-          style={{ opacity: dot }}
-          className="h-1.5 w-1.5 rounded-full bg-gray-400"
-        />
-      ))}
-    </View>
-  );
-}
-
-// ── Typing indicator (separate small bubble) ────────────────────
-
-function TypingIndicator() {
-  return (
-    <View className="mb-2 items-start">
-      <View className="rounded-2xl rounded-bl-md bg-gray-100 px-4 py-2.5">
-        <DotsLoader />
-      </View>
-    </View>
-  );
-}
 
 // ── Example prompts ─────────────────────────────────────────────
 
