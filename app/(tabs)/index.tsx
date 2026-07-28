@@ -38,6 +38,9 @@ type ChatMessage =
   | { id: string; role: 'user'; text: string }
   | { id: string; role: 'agent'; event: AgentEvent };
 
+// Let the new message/layout commit before scrolling to the end.
+const SCROLL_TO_END_DELAY_MS = 100;
+
 // ── Main Chat Screen ────────────────────────────────────────────
 
 export default function ChatScreen() {
@@ -56,7 +59,7 @@ export default function ChatScreen() {
   const scrollToBottom = useCallback(() => {
     setTimeout(() => {
       scrollRef.current?.scrollToEnd({ animated: true });
-    }, 100);
+    }, SCROLL_TO_END_DELAY_MS);
   }, []);
 
   const addAgentMessage = useCallback(

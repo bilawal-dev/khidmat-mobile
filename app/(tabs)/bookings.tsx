@@ -15,6 +15,9 @@ import { categoryEmoji, categoryServiceLabel } from '@/lib/categories';
 import { colors } from '@/lib/theme/colors';
 import { pluralize } from '@/lib/util/text';
 
+// Pull-to-refresh has no real backend to hit; spin briefly for feedback.
+const REFRESH_SIMULATION_MS = 600;
+
 export default function BookingsScreen() {
   const rawBookings = useBookingsStore((s) => s.bookings);
   const bookings = useMemo(
@@ -25,8 +28,7 @@ export default function BookingsScreen() {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    // Simulate a brief refresh
-    setTimeout(() => setRefreshing(false), 600);
+    setTimeout(() => setRefreshing(false), REFRESH_SIMULATION_MS);
   }, []);
 
   if (bookings.length === 0) {

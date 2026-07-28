@@ -15,6 +15,9 @@ import { Button } from '@/components/Button';
 import { SECTORS as SECTOR_OPTIONS, DEFAULT_SECTOR } from '@/lib/mock/providers';
 import { colors } from '@/lib/theme/colors';
 
+// Delay the blur handler so a dropdown option's onPress can fire first.
+const DROPDOWN_BLUR_DELAY_MS = 200;
+
 export default function SettingsScreen() {
   const defaultLocation = useSettingsStore((s) => s.defaultLocation);
   const setDefaultLocation = useSettingsStore((s) => s.setDefaultLocation);
@@ -43,7 +46,6 @@ export default function SettingsScreen() {
   };
 
   const handleBlur = () => {
-    // Delay so onPress on the dropdown can fire first
     setTimeout(() => {
       setShowDropdown(false);
       const trimmed = locationInput.trim();
@@ -57,7 +59,7 @@ export default function SettingsScreen() {
         // Invalid entry — revert to the last saved value
         setLocationInput(defaultLocation);
       }
-    }, 200);
+    }, DROPDOWN_BLUR_DELAY_MS);
   };
 
   const handleClearBookings = () => {
