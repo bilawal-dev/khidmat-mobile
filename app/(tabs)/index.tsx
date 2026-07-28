@@ -17,7 +17,7 @@ import { ChatBubble } from '@/components/ChatBubble';
 import { ExtractedFieldsRow } from '@/components/ExtractedFieldsRow';
 import { ProviderCard } from '@/components/ProviderCard';
 import { InputBar } from '@/components/InputBar';
-import { ExamplePromptChip } from '@/components/ExamplePromptChip';
+import { ChatEmptyState } from '@/components/ChatEmptyState';
 import { FadeIn, TypingIndicator } from '@/components/ChatLoaders';
 import { runAgent, confirmBooking, DEFAULT_REMINDER_LABEL } from '@/lib/agent/mockAgent';
 import { useSettingsStore } from '@/lib/stores/useSettingsStore';
@@ -28,7 +28,6 @@ import { formatLocationLabel } from '@/lib/util/location';
 import { colors } from '@/lib/theme/colors';
 import { formatSchedule } from '@/lib/util/schedule';
 import { findEventOfType } from '@/lib/agent/findEvent';
-import { EXAMPLE_PROMPTS } from '@/lib/examplePrompts';
 import type { AgentEvent } from '@/lib/agent/types';
 
 type RecommendationEvent = Extract<AgentEvent, { type: 'recommendation' }>;
@@ -348,29 +347,7 @@ export default function ChatScreen() {
           }
         >
           {showEmptyState ? (
-            <View className="flex-1 justify-center px-2 pb-8">
-              {/* Greeting */}
-              <Text className="text-3xl font-bold text-gray-900">
-                Assalam-o-Alaikum 👋
-              </Text>
-              <Text className="mt-2 text-xl font-semibold text-gray-700">
-                What service do you need?
-              </Text>
-              <Text className="mt-1 text-sm text-gray-400">
-                Type in English, Urdu, or Roman Urdu
-              </Text>
-
-              {/* Example chips */}
-              <View className="mt-6">
-                {EXAMPLE_PROMPTS.map((prompt) => (
-                  <ExamplePromptChip
-                    key={prompt}
-                    text={prompt}
-                    onPress={() => handleChipPress(prompt)}
-                  />
-                ))}
-              </View>
-            </View>
+            <ChatEmptyState onSelectPrompt={handleChipPress} />
           ) : (
             <>
               {messages.map((msg, i) => {
