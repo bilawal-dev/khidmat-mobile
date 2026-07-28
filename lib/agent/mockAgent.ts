@@ -88,9 +88,12 @@ function detectService(msg: string): ServiceCategory | null {
   return null;
 }
 
+// Islamabad sector codes: a letter A–I, a dash, 1–2 digits, and an optional
+// "/n" sub-sector — e.g. G-13, F-10/3, I-8/3, F-7.
+const SECTOR_PATTERN = /\b([A-Ia-i]-\d{1,2}(?:\/\d)?)\b/i;
+
 function detectLocation(msg: string): string | null {
-  // Match patterns like G-13, F-10/3, I-8/3, F-7, etc.
-  const match = msg.match(/\b([A-Ia-i]-\d{1,2}(?:\/\d)?)\b/i);
+  const match = msg.match(SECTOR_PATTERN);
   return match ? match[1].toUpperCase() : null;
 }
 

@@ -8,6 +8,16 @@ Built with Expo, React Native, Zustand, and TypeScript. Pairs with any server th
 
 Currently runs against an in-process mock agent at [lib/agent/mockAgent.ts](lib/agent/mockAgent.ts). Wiring to a real backend is the next integration step — swap the mock for an SSE client that hits `EXPO_PUBLIC_API_BASE_URL/chat`.
 
+### Mock agent flow
+
+`runAgent()` is an async generator that yields the same `AgentEvent`s the real server streams, with short delays between stages so it feels like live work:
+
+1. **understanding** — detect service, sector, and time from the message (falls back to the saved default location); if a required field is missing it yields `awaiting_user` and stops.
+2. **searching** → **ranking** — filter providers by category, then score by haversine distance with a rating tie-breaker.
+3. **recommendation** — the top pick with a suggested slot and human reasoning.
+
+`confirmBooking()` then yields **booking** → **confirmed** → **reminder_scheduled**. Because the events match the wire contract, swapping in a real SSE client is a drop-in change.
+
 ## Stack
 
 | Layer | Tech |

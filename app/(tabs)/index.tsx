@@ -17,7 +17,7 @@ import { ChatBubble } from '@/components/ChatBubble';
 import { ExtractedFieldsRow } from '@/components/ExtractedFieldsRow';
 import { ProviderCard } from '@/components/ProviderCard';
 import { InputBar } from '@/components/InputBar';
-import { ExamplePromptChip } from '@/components/ExamplePromptChip';
+import { ChatEmptyState } from '@/components/ChatEmptyState';
 import { FadeIn, TypingIndicator } from '@/components/ChatLoaders';
 import { runAgent, confirmBooking, DEFAULT_REMINDER_LABEL } from '@/lib/agent/mockAgent';
 import { useSettingsStore } from '@/lib/stores/useSettingsStore';
@@ -38,14 +38,8 @@ type ChatMessage =
   | { id: string; role: 'user'; text: string }
   | { id: string; role: 'agent'; event: AgentEvent };
 
-// ── Example prompts ─────────────────────────────────────────────
-
-const EXAMPLE_PROMPTS = [
-  'Mujhe kal subah G-13 mein AC technician chahiye',
-  'Plumber abhi chahiye, bathroom mein leak hai',
-  'Math tutor for my son, F-10',
-  'Beautician chahiye Sunday ko, home service',
-];
+// Let the new message/layout commit before scrolling to the end.
+const SCROLL_TO_END_DELAY_MS = 100;
 
 // ── Main Chat Screen ────────────────────────────────────────────
 
@@ -65,7 +59,7 @@ export default function ChatScreen() {
   const scrollToBottom = useCallback(() => {
     setTimeout(() => {
       scrollRef.current?.scrollToEnd({ animated: true });
-    }, 100);
+    }, SCROLL_TO_END_DELAY_MS);
   }, []);
 
   const addAgentMessage = useCallback(
@@ -356,29 +350,7 @@ export default function ChatScreen() {
           }
         >
           {showEmptyState ? (
-            <View className="flex-1 justify-center px-2 pb-8">
-              {/* Greeting */}
-              <Text className="text-3xl font-bold text-gray-900">
-                Assalam-o-Alaikum 👋
-              </Text>
-              <Text className="mt-2 text-xl font-semibold text-gray-700">
-                What service do you need?
-              </Text>
-              <Text className="mt-1 text-sm text-gray-400">
-                Type in English, Urdu, or Roman Urdu
-              </Text>
-
-              {/* Example chips */}
-              <View className="mt-6">
-                {EXAMPLE_PROMPTS.map((prompt) => (
-                  <ExamplePromptChip
-                    key={prompt}
-                    text={prompt}
-                    onPress={() => handleChipPress(prompt)}
-                  />
-                ))}
-              </View>
-            </View>
+            <ChatEmptyState onSelectPrompt={handleChipPress} />
           ) : (
             <>
               {messages.map((msg, i) => {
