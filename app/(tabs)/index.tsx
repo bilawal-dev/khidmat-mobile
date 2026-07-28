@@ -28,6 +28,7 @@ import { formatLocationLabel } from '@/lib/util/location';
 import { colors } from '@/lib/theme/colors';
 import { formatSchedule } from '@/lib/util/schedule';
 import { findEventOfType } from '@/lib/agent/findEvent';
+import { EXAMPLE_PROMPTS } from '@/lib/examplePrompts';
 import type { AgentEvent } from '@/lib/agent/types';
 
 type RecommendationEvent = Extract<AgentEvent, { type: 'recommendation' }>;
@@ -37,15 +38,6 @@ type RecommendationEvent = Extract<AgentEvent, { type: 'recommendation' }>;
 type ChatMessage =
   | { id: string; role: 'user'; text: string }
   | { id: string; role: 'agent'; event: AgentEvent };
-
-// ── Example prompts ─────────────────────────────────────────────
-
-const EXAMPLE_PROMPTS = [
-  'Mujhe kal subah G-13 mein AC technician chahiye',
-  'Plumber abhi chahiye, bathroom mein leak hai',
-  'Math tutor for my son, F-10',
-  'Beautician chahiye Sunday ko, home service',
-];
 
 // ── Main Chat Screen ────────────────────────────────────────────
 
