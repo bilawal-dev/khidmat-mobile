@@ -41,6 +41,22 @@ type ChatMessage =
 // Let the new message/layout commit before scrolling to the end.
 const SCROLL_TO_END_DELAY_MS = 100;
 
+/** An agent bubble that shows the typing indicator beneath it while loading. */
+function AgentStep({
+  loading,
+  children,
+}: {
+  loading: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <View>
+      <ChatBubble side="agent">{children}</ChatBubble>
+      {loading && <TypingIndicator />}
+    </View>
+  );
+}
+
 // ── Main Chat Screen ────────────────────────────────────────────
 
 export default function ChatScreen() {
@@ -222,28 +238,22 @@ export default function ChatScreen() {
 
         case 'searching':
           return (
-            <View>
-              <ChatBubble side="agent">
-                <Text className="text-[15px] text-gray-900">
-                  Looking for {categoryRoleLabel(event.category)} near{' '}
-                  {event.near}
-                </Text>
-              </ChatBubble>
-              {showLoading && <TypingIndicator />}
-            </View>
+            <AgentStep loading={showLoading}>
+              <Text className="text-[15px] text-gray-900">
+                Looking for {categoryRoleLabel(event.category)} near{' '}
+                {event.near}
+              </Text>
+            </AgentStep>
           );
 
         case 'ranking':
           return (
-            <View>
-              <ChatBubble side="agent">
-                <Text className="text-[15px] text-gray-900">
-                  Found {event.candidateCount} nearby. Ranking by distance,
-                  rating, and availability
-                </Text>
-              </ChatBubble>
-              {showLoading && <TypingIndicator />}
-            </View>
+            <AgentStep loading={showLoading}>
+              <Text className="text-[15px] text-gray-900">
+                Found {event.candidateCount} nearby. Ranking by distance,
+                rating, and availability
+              </Text>
+            </AgentStep>
           );
 
         case 'recommendation':
@@ -274,14 +284,11 @@ export default function ChatScreen() {
 
         case 'booking':
           return (
-            <View>
-              <ChatBubble side="agent">
-                <Text className="text-[15px] text-gray-900">
-                  Booking the {event.slot} slot with {event.provider.name}
-                </Text>
-              </ChatBubble>
-              {showLoading && <TypingIndicator />}
-            </View>
+            <AgentStep loading={showLoading}>
+              <Text className="text-[15px] text-gray-900">
+                Booking the {event.slot} slot with {event.provider.name}
+              </Text>
+            </AgentStep>
           );
 
         case 'confirmed':
