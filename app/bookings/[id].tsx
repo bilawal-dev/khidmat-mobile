@@ -1,12 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  Pressable,
-  Alert,
-  Linking,
-} from 'react-native';
+import { View, Text, ScrollView, Pressable, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { StatusBadge } from '@/components/StatusBadge';
 import { StatusTimeline } from '@/components/StatusTimeline';
 import { AgentThreadSection } from '@/components/AgentThreadSection';
+import { BookingInfoCard } from '@/components/BookingInfoCard';
 import { Button } from '@/components/Button';
 import { useBookingsStore } from '@/lib/stores/useBookingsStore';
 import { providers } from '@/lib/mock/providers';
@@ -63,12 +57,6 @@ export default function BookingDetailScreen() {
     ]);
   }, [id, updateStatus]);
 
-  const handleCall = useCallback(() => {
-    if (provider?.phone) {
-      Linking.openURL(`tel:${provider.phone}`);
-    }
-  }, [provider]);
-
   if (!booking) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-white" edges={['top']}>
@@ -113,29 +101,11 @@ export default function BookingDetailScreen() {
       </View>
 
       {/* Booking Info */}
-      <View className="mb-4 rounded-2xl border border-gray-100 bg-gray-50 p-4">
-        <View className="mb-3 flex-row items-center">
-          <Ionicons name="time-outline" size={18} color={colors.gray500} />
-          <Text className="ml-2 text-sm text-gray-700">
-            {booking.scheduledFor}
-          </Text>
-        </View>
-        <View className="mb-3 flex-row items-center">
-          <Ionicons name="location-outline" size={18} color={colors.gray500} />
-          <Text className="ml-2 text-sm text-gray-700">{booking.sector}</Text>
-        </View>
-        {provider?.phone && (
-          <Pressable
-            onPress={handleCall}
-            className="flex-row items-center active:opacity-60"
-          >
-            <Ionicons name="call-outline" size={18} color={colors.primary} />
-            <Text className="ml-2 text-sm font-medium text-primary">
-              {provider.phone}
-            </Text>
-          </Pressable>
-        )}
-      </View>
+      <BookingInfoCard
+        scheduledFor={booking.scheduledFor}
+        sector={booking.sector}
+        phone={provider?.phone}
+      />
 
       {/* Agent Thread (collapsible) */}
       <AgentThreadSection thread={booking.agentThread} />
