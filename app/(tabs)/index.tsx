@@ -1,16 +1,8 @@
 import React, { useState, useRef, useCallback } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  Platform,
-  Alert,
-  Pressable,
-} from 'react-native';
+import { View, Text, ScrollView, Platform, Alert } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 
 import { ChatBubble } from '@/components/ChatBubble';
@@ -18,6 +10,7 @@ import { ExtractedFieldsRow } from '@/components/ExtractedFieldsRow';
 import { ProviderCard } from '@/components/ProviderCard';
 import { InputBar } from '@/components/InputBar';
 import { ChatEmptyState } from '@/components/ChatEmptyState';
+import { ChatHeader } from '@/components/ChatHeader';
 import { FadeIn, TypingIndicator } from '@/components/ChatLoaders';
 import { runAgent, confirmBooking, DEFAULT_REMINDER_LABEL } from '@/lib/agent/mockAgent';
 import { useSettingsStore } from '@/lib/stores/useSettingsStore';
@@ -25,7 +18,6 @@ import { useBookingsStore } from '@/lib/stores/useBookingsStore';
 import { categoryRoleLabel } from '@/lib/categories';
 import { makeId } from '@/lib/util/id';
 import { formatLocationLabel } from '@/lib/util/location';
-import { colors } from '@/lib/theme/colors';
 import { formatSchedule } from '@/lib/util/schedule';
 import { findEventOfType } from '@/lib/agent/findEvent';
 import type { AgentEvent } from '@/lib/agent/types';
@@ -40,6 +32,22 @@ type ChatMessage =
 
 // Let the new message/layout commit before scrolling to the end.
 const SCROLL_TO_END_DELAY_MS = 100;
+
+/** An agent bubble that shows the typing indicator beneath it while loading. */
+function AgentStep({
+  loading,
+  children,
+}: {
+  loading: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <View>
+      <ChatBubble side="agent">{children}</ChatBubble>
+      {loading && <TypingIndicator />}
+    </View>
+  );
+}
 
 // ── Main Chat Screen ────────────────────────────────────────────
 
@@ -222,28 +230,22 @@ export default function ChatScreen() {
 
         case 'searching':
           return (
-            <View>
-              <ChatBubble side="agent">
-                <Text className="text-[15px] text-gray-900">
-                  Looking for {categoryRoleLabel(event.category)} near{' '}
-                  {event.near}
-                </Text>
-              </ChatBubble>
-              {showLoading && <TypingIndicator />}
-            </View>
+            <AgentStep loading={showLoading}>
+              <Text className="text-[15px] text-gray-900">
+                Looking for {categoryRoleLabel(event.category)} near{' '}
+                {event.near}
+              </Text>
+            </AgentStep>
           );
 
         case 'ranking':
           return (
-            <View>
-              <ChatBubble side="agent">
-                <Text className="text-[15px] text-gray-900">
-                  Found {event.candidateCount} nearby. Ranking by distance,
-                  rating, and availability
-                </Text>
-              </ChatBubble>
-              {showLoading && <TypingIndicator />}
-            </View>
+            <AgentStep loading={showLoading}>
+              <Text className="text-[15px] text-gray-900">
+                Found {event.candidateCount} nearby. Ranking by distance,
+                rating, and availability
+              </Text>
+            </AgentStep>
           );
 
         case 'recommendation':
@@ -274,14 +276,11 @@ export default function ChatScreen() {
 
         case 'booking':
           return (
-            <View>
-              <ChatBubble side="agent">
-                <Text className="text-[15px] text-gray-900">
-                  Booking the {event.slot} slot with {event.provider.name}
-                </Text>
-              </ChatBubble>
-              {showLoading && <TypingIndicator />}
-            </View>
+            <AgentStep loading={showLoading}>
+              <Text className="text-[15px] text-gray-900">
+                Booking the {event.slot} slot with {event.provider.name}
+              </Text>
+            </AgentStep>
           );
 
         case 'confirmed':
@@ -322,22 +321,10 @@ export default function ChatScreen() {
         keyboardVerticalOffset={60 + insets.bottom}
       >
         {/* Header */}
-        <View className="flex-row items-center justify-between border-b border-gray-50 px-5 pb-3 pt-2">
-          <View>
-            <Text className="text-lg font-bold text-gray-900">Khidmat</Text>
-            <Text className="text-xs text-gray-400">
-              Your AI service assistant
-            </Text>
-          </View>
-          {messages.length > 0 && !isProcessing && (
-            <Pressable
-              onPress={handleNewChat}
-              className="h-9 w-9 items-center justify-center rounded-full bg-gray-50 active:bg-gray-100"
-            >
-              <Ionicons name="create-outline" size={18} color={colors.gray500} />
-            </Pressable>
-          )}
-        </View>
+        <ChatHeader
+          showNewChat={messages.length > 0 && !isProcessing}
+          onNewChat={handleNewChat}
+        />
 
         {/* Chat messages */}
         <ScrollView
