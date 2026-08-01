@@ -5,6 +5,7 @@ import {
   ScrollView,
   Pressable,
   RefreshControl,
+  TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -20,6 +21,7 @@ import {
   filterBookingsByTab,
   type BookingTab,
 } from '@/lib/util/bookingFilters';
+import { filterBookingsByQuery } from '@/lib/util/bookingSearch';
 
 // Pull-to-refresh has no real backend to hit; spin briefly for feedback.
 const REFRESH_SIMULATION_MS = 600;
@@ -32,11 +34,12 @@ export default function BookingsScreen() {
   );
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<BookingTab>('upcoming');
+  const [query, setQuery] = useState('');
 
   const counts = useMemo(() => countByTab(bookings), [bookings]);
   const visible = useMemo(
-    () => filterBookingsByTab(bookings, activeTab),
-    [bookings, activeTab],
+    () => filterBookingsByQuery(filterBookingsByTab(bookings, activeTab), query),
+    [bookings, activeTab, query],
   );
 
   const onRefresh = useCallback(() => {
@@ -104,9 +107,24 @@ export default function BookingsScreen() {
         })}
       </View>
 
+      {/* Search */}
+      <View className="px-4 pb-2 pt-3">
+        <TextInput
+          value={query}
+          onChangeText={setQuery}
+          placeholder="Search by provider, service, or sector"
+          placeholderTextColor={colors.gray400}
+          autoCapitalize="none"
+          autoCorrect={false}
+          returnKeyType="search"
+          className="rounded-xl bg-gray-50 px-4 py-2.5 text-sm text-gray-900"
+        />
+      </View>
+
       <ScrollView
-        className="flex-1 px-4 pt-3"
+        className="flex-1 px-4 pt-1"
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -118,9 +136,11 @@ export default function BookingsScreen() {
       >
         {visible.length === 0 && (
           <View className="items-center px-8 pt-16">
-            <Text className="text-4xl">🗂️</Text>
+            <Text className="text-4xl">{query.trim() ? '🔍' : '🗂️'}</Text>
             <Text className="mt-3 text-center text-sm text-gray-400">
-              No {activeTab} bookings
+              {query.trim()
+                ? `No ${activeTab} bookings match “${query.trim()}”`
+                : `No ${activeTab} bookings`}
             </Text>
           </View>
         )}
