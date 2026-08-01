@@ -14,6 +14,12 @@ import { useBookingsStore } from '@/lib/stores/useBookingsStore';
 import { categoryEmoji, categoryServiceLabel } from '@/lib/categories';
 import { colors } from '@/lib/theme/colors';
 import { pluralize } from '@/lib/util/text';
+import {
+  BOOKING_TABS,
+  countByTab,
+  filterBookingsByTab,
+  type BookingTab,
+} from '@/lib/util/bookingFilters';
 
 // Pull-to-refresh has no real backend to hit; spin briefly for feedback.
 const REFRESH_SIMULATION_MS = 600;
@@ -25,6 +31,13 @@ export default function BookingsScreen() {
     [rawBookings],
   );
   const [refreshing, setRefreshing] = useState(false);
+  const [activeTab, setActiveTab] = useState<BookingTab>('upcoming');
+
+  const counts = useMemo(() => countByTab(bookings), [bookings]);
+  const visible = useMemo(
+    () => filterBookingsByTab(bookings, activeTab),
+    [bookings, activeTab],
+  );
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -66,6 +79,31 @@ export default function BookingsScreen() {
           {bookings.length} {pluralize(bookings.length, 'booking')}
         </Text>
       </View>
+
+      {/* Tab bar */}
+      <View className="flex-row border-b border-gray-50 px-4">
+        {BOOKING_TABS.map((tab) => {
+          const isActive = tab.key === activeTab;
+          return (
+            <Pressable
+              key={tab.key}
+              onPress={() => setActiveTab(tab.key)}
+              className={`mr-5 border-b-2 pb-2.5 pt-1 ${
+                isActive ? 'border-primary' : 'border-transparent'
+              }`}
+            >
+              <Text
+                className={`text-sm font-semibold ${
+                  isActive ? 'text-primary' : 'text-gray-400'
+                }`}
+              >
+                {tab.label} ({counts[tab.key]})
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
       <ScrollView
         className="flex-1 px-4 pt-3"
         showsVerticalScrollIndicator={false}
@@ -78,7 +116,15 @@ export default function BookingsScreen() {
           />
         }
       >
-        {bookings.map((booking) => (
+        {visible.length === 0 && (
+          <View className="items-center px-8 pt-16">
+            <Text className="text-4xl">🗂️</Text>
+            <Text className="mt-3 text-center text-sm text-gray-400">
+              No {activeTab} bookings
+            </Text>
+          </View>
+        )}
+        {visible.map((booking) => (
           <Pressable
             key={booking.id}
             onPress={() => router.push(`/bookings/${booking.id}`)}
