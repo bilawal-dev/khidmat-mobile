@@ -27,6 +27,7 @@ type BookingsState = {
   addBooking: (booking: Booking) => void;
   updateStatus: (id: string, status: BookingStatus) => void;
   cancel: (id: string) => void;
+  clearCancelled: () => void;
   clear: () => void;
 };
 
@@ -45,6 +46,11 @@ export const useBookingsStore = create<BookingsState>()(
       // Cancelling is just a status transition — reuse updateStatus so the
       // update logic lives in one place.
       cancel: (id) => get().updateStatus(id, 'cancelled'),
+      // Purge cancelled bookings only, leaving active/past ones intact.
+      clearCancelled: () =>
+        set((state) => ({
+          bookings: state.bookings.filter((b) => b.status !== 'cancelled'),
+        })),
       clear: () => set({ bookings: [] }),
     }),
     {
