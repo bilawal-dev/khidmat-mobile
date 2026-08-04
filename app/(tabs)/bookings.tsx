@@ -6,6 +6,7 @@ import {
   Pressable,
   RefreshControl,
   TextInput,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -33,6 +34,7 @@ const REFRESH_SIMULATION_MS = 600;
 
 export default function BookingsScreen() {
   const bookings = useBookingsStore((s) => s.bookings);
+  const clearCancelled = useBookingsStore((s) => s.clearCancelled);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<BookingTab>('upcoming');
   const [query, setQuery] = useState('');
@@ -49,6 +51,20 @@ export default function BookingsScreen() {
     setRefreshing(true);
     setTimeout(() => setRefreshing(false), REFRESH_SIMULATION_MS);
   }, []);
+
+  const handleClearCancelled = useCallback(() => {
+    Alert.alert(
+      'Clear cancelled?',
+      `This removes ${counts.cancelled} cancelled ${pluralize(
+        counts.cancelled,
+        'booking',
+      )}. Active and past bookings are kept.`,
+      [
+        { text: 'Keep them', style: 'cancel' },
+        { text: 'Clear', style: 'destructive', onPress: clearCancelled },
+      ],
+    );
+  }, [counts.cancelled, clearCancelled]);
 
   if (bookings.length === 0) {
     return (
@@ -79,11 +95,21 @@ export default function BookingsScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
-      <View className="border-b border-gray-50 px-5 pb-3 pt-4">
-        <Text className="text-lg font-bold text-gray-900">Bookings</Text>
-        <Text className="text-xs text-gray-400">
-          {bookings.length} {pluralize(bookings.length, 'booking')}
-        </Text>
+      <View className="flex-row items-center justify-between border-b border-gray-50 px-5 pb-3 pt-4">
+        <View>
+          <Text className="text-lg font-bold text-gray-900">Bookings</Text>
+          <Text className="text-xs text-gray-400">
+            {bookings.length} {pluralize(bookings.length, 'booking')}
+          </Text>
+        </View>
+        {activeTab === 'cancelled' && counts.cancelled > 0 && (
+          <Pressable
+            onPress={handleClearCancelled}
+            className="rounded-full bg-gray-50 px-3 py-1.5 active:bg-gray-100"
+          >
+            <Text className="text-xs font-semibold text-red-600">Clear</Text>
+          </Pressable>
+        )}
       </View>
 
       {/* Tab bar */}
