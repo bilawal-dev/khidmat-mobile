@@ -22,25 +22,28 @@ import {
   type BookingTab,
 } from '@/lib/util/bookingFilters';
 import { filterBookingsByQuery } from '@/lib/util/bookingSearch';
+import {
+  BOOKING_SORTS,
+  applyBookingSort,
+  type BookingSort,
+} from '@/lib/util/bookingSort';
 
 // Pull-to-refresh has no real backend to hit; spin briefly for feedback.
 const REFRESH_SIMULATION_MS = 600;
 
 export default function BookingsScreen() {
-  const rawBookings = useBookingsStore((s) => s.bookings);
-  const bookings = useMemo(
-    () => [...rawBookings].sort((a, b) => b.createdAt - a.createdAt),
-    [rawBookings],
-  );
+  const bookings = useBookingsStore((s) => s.bookings);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<BookingTab>('upcoming');
   const [query, setQuery] = useState('');
+  const [sort, setSort] = useState<BookingSort>('newest');
 
   const counts = useMemo(() => countByTab(bookings), [bookings]);
-  const visible = useMemo(
-    () => filterBookingsByQuery(filterBookingsByTab(bookings, activeTab), query),
-    [bookings, activeTab, query],
-  );
+  const visible = useMemo(() => {
+    const inTab = filterBookingsByTab(bookings, activeTab);
+    const matched = filterBookingsByQuery(inTab, query);
+    return applyBookingSort(matched, sort);
+  }, [bookings, activeTab, query, sort]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -119,6 +122,31 @@ export default function BookingsScreen() {
           returnKeyType="search"
           className="rounded-xl bg-gray-50 px-4 py-2.5 text-sm text-gray-900"
         />
+      </View>
+
+      {/* Sort chips */}
+      <View className="flex-row items-center px-4 pb-2">
+        <Text className="mr-2 text-xs text-gray-400">Sort</Text>
+        {BOOKING_SORTS.map((option) => {
+          const isActive = option.key === sort;
+          return (
+            <Pressable
+              key={option.key}
+              onPress={() => setSort(option.key)}
+              className={`mr-2 rounded-full px-3 py-1 ${
+                isActive ? 'bg-primary' : 'bg-gray-50'
+              }`}
+            >
+              <Text
+                className={`text-xs font-semibold ${
+                  isActive ? 'text-white' : 'text-gray-500'
+                }`}
+              >
+                {option.label}
+              </Text>
+            </Pressable>
+          );
+        })}
       </View>
 
       <ScrollView
