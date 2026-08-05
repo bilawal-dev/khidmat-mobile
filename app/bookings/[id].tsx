@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo } from 'react';
-import { View, Text, ScrollView, Pressable, Alert } from 'react-native';
+import React, { useCallback, useMemo, useState } from 'react';
+import { View, Text, ScrollView, Pressable, Alert, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -23,8 +23,16 @@ export default function BookingDetailScreen() {
   );
   const cancel = useBookingsStore((s) => s.cancel);
   const updateStatus = useBookingsStore((s) => s.updateStatus);
+  const setNote = useBookingsStore((s) => s.setNote);
 
   const provider = providers.find((p) => p.id === booking?.providerId);
+
+  const [noteDraft, setNoteDraft] = useState(booking?.note ?? '');
+  const noteDirty = noteDraft.trim() !== (booking?.note ?? '');
+
+  const handleSaveNote = useCallback(() => {
+    if (id) setNote(id, noteDraft);
+  }, [id, noteDraft, setNote]);
 
   const handleCancel = useCallback(() => {
     Alert.alert(
@@ -106,6 +114,30 @@ export default function BookingDetailScreen() {
         sector={booking.sector}
         phone={provider?.phone}
       />
+
+      {/* Note */}
+      <View className="mb-4">
+        <Text className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
+          Note
+        </Text>
+        <TextInput
+          value={noteDraft}
+          onChangeText={setNoteDraft}
+          placeholder="Add a note (gate code, instructions…)"
+          placeholderTextColor={colors.gray400}
+          multiline
+          className="min-h-[64px] rounded-2xl border border-gray-100 bg-gray-50 p-3 text-sm text-gray-900"
+          textAlignVertical="top"
+        />
+        {noteDirty && (
+          <Pressable
+            onPress={handleSaveNote}
+            className="mt-2 self-start rounded-full bg-primary px-4 py-1.5 active:opacity-80"
+          >
+            <Text className="text-xs font-semibold text-white">Save note</Text>
+          </Pressable>
+        )}
+      </View>
 
       {/* Agent Thread (collapsible) */}
       <AgentThreadSection thread={booking.agentThread} />
