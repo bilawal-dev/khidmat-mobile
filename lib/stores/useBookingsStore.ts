@@ -20,12 +20,14 @@ export type Booking = {
   reminderAt: string;
   agentThread: AgentEvent[]; // preserved events from the conversation
   createdAt: number;
+  note?: string; // optional user note (gate code, instructions, etc.)
 };
 
 type BookingsState = {
   bookings: Booking[];
   addBooking: (booking: Booking) => void;
   updateStatus: (id: string, status: BookingStatus) => void;
+  setNote: (id: string, note: string) => void;
   cancel: (id: string) => void;
   clearCancelled: () => void;
   clear: () => void;
@@ -41,6 +43,13 @@ export const useBookingsStore = create<BookingsState>()(
         set((state) => ({
           bookings: state.bookings.map((b) =>
             b.id === id ? { ...b, status } : b,
+          ),
+        })),
+      // Attach/replace a free-text note on a booking; trimmed-empty clears it.
+      setNote: (id, note) =>
+        set((state) => ({
+          bookings: state.bookings.map((b) =>
+            b.id === id ? { ...b, note: note.trim() || undefined } : b,
           ),
         })),
       // Cancelling is just a status transition — reuse updateStatus so the
