@@ -14,6 +14,7 @@ import { useBookingsStore } from '@/lib/stores/useBookingsStore';
 import { Button } from '@/components/Button';
 import { SECTORS as SECTOR_OPTIONS, DEFAULT_SECTOR } from '@/lib/mock/providers';
 import { colors } from '@/lib/theme/colors';
+import { computeBookingSummary } from '@/lib/util/bookingSummary';
 
 // Delay the blur handler so a dropdown option's onPress can fire first.
 const DROPDOWN_BLUR_DELAY_MS = 200;
@@ -21,7 +22,10 @@ const DROPDOWN_BLUR_DELAY_MS = 200;
 export default function SettingsScreen() {
   const defaultLocation = useSettingsStore((s) => s.defaultLocation);
   const setDefaultLocation = useSettingsStore((s) => s.setDefaultLocation);
+  const bookings = useBookingsStore((s) => s.bookings);
   const clearBookings = useBookingsStore((s) => s.clear);
+
+  const summary = useMemo(() => computeBookingSummary(bookings), [bookings]);
 
   const [locationInput, setLocationInput] = useState(defaultLocation);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -132,6 +136,35 @@ export default function SettingsScreen() {
             Used when you don&apos;t specify a location in your request.
           </Text>
         </View>
+
+        {/* Section: Your activity */}
+        {summary.total > 0 && (
+          <View className="mb-6">
+            <Text className="mb-2 text-sm font-bold text-gray-900">
+              Your activity
+            </Text>
+            <View className="flex-row gap-2">
+              {[
+                { label: 'Total', value: summary.total },
+                { label: 'Upcoming', value: summary.upcoming },
+                { label: 'Completed', value: summary.completed },
+                { label: 'Cancelled', value: summary.cancelled },
+              ].map((stat) => (
+                <View
+                  key={stat.label}
+                  className="flex-1 items-center rounded-2xl border border-gray-100 bg-gray-50 py-3"
+                >
+                  <Text className="text-xl font-bold text-gray-900">
+                    {stat.value}
+                  </Text>
+                  <Text className="mt-0.5 text-[11px] text-gray-500">
+                    {stat.label}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
 
         {/* Section 2: About */}
         <View className="mb-6 rounded-2xl bg-primary-50 p-4">
