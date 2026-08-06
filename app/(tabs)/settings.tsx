@@ -9,7 +9,11 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useSettingsStore } from '@/lib/stores/useSettingsStore';
+import {
+  useSettingsStore,
+  REMINDER_LEAD_OPTIONS,
+  type ReminderLeadHours,
+} from '@/lib/stores/useSettingsStore';
 import { useBookingsStore } from '@/lib/stores/useBookingsStore';
 import { Button } from '@/components/Button';
 import { SECTORS as SECTOR_OPTIONS, DEFAULT_SECTOR } from '@/lib/mock/providers';
@@ -19,9 +23,20 @@ import { computeBookingSummary } from '@/lib/util/bookingSummary';
 // Delay the blur handler so a dropdown option's onPress can fire first.
 const DROPDOWN_BLUR_DELAY_MS = 200;
 
+/** Human label for a reminder lead time (e.g. 1 → "1 hour", 24 → "1 day"). */
+function reminderLeadLabel(hours: number): string {
+  if (hours >= 24) {
+    const days = Math.round(hours / 24);
+    return `${days} day${days === 1 ? '' : 's'}`;
+  }
+  return `${hours} hour${hours === 1 ? '' : 's'}`;
+}
+
 export default function SettingsScreen() {
   const defaultLocation = useSettingsStore((s) => s.defaultLocation);
   const setDefaultLocation = useSettingsStore((s) => s.setDefaultLocation);
+  const reminderLeadHours = useSettingsStore((s) => s.reminderLeadHours);
+  const setReminderLeadHours = useSettingsStore((s) => s.setReminderLeadHours);
   const bookings = useBookingsStore((s) => s.bookings);
   const clearBookings = useBookingsStore((s) => s.clear);
 
@@ -134,6 +149,40 @@ export default function SettingsScreen() {
 
           <Text className="mt-2 text-xs text-gray-400">
             Used when you don&apos;t specify a location in your request.
+          </Text>
+        </View>
+
+        {/* Section: Reminder lead time */}
+        <View className="mb-6">
+          <Text className="mb-2 text-sm font-bold text-gray-900">
+            Remind me before an appointment
+          </Text>
+          <View className="flex-row gap-2">
+            {REMINDER_LEAD_OPTIONS.map((hours) => {
+              const isActive = hours === reminderLeadHours;
+              return (
+                <Pressable
+                  key={hours}
+                  onPress={() => setReminderLeadHours(hours as ReminderLeadHours)}
+                  className={`flex-1 items-center rounded-xl border py-2.5 ${
+                    isActive
+                      ? 'border-primary bg-primary-50'
+                      : 'border-gray-200 bg-gray-50'
+                  }`}
+                >
+                  <Text
+                    className={`text-sm font-semibold ${
+                      isActive ? 'text-primary' : 'text-gray-600'
+                    }`}
+                  >
+                    {reminderLeadLabel(hours)}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+          <Text className="mt-2 text-xs text-gray-400">
+            How far ahead of a booking you&apos;ll get a reminder.
           </Text>
         </View>
 
