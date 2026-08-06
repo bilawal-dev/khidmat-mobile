@@ -5,6 +5,7 @@ import type { Provider } from '@/lib/mock/providers';
 import { categoryEmoji, categoryServiceLabel } from '@/lib/categories';
 import { colors } from '@/lib/theme/colors';
 import { formatSchedule } from '@/lib/util/schedule';
+import { useFavoritesStore } from '@/lib/stores/useFavoritesStore';
 
 type ProviderCardProps = {
   provider: Provider;
@@ -23,6 +24,9 @@ export function ProviderCard({
   dayLabel,
   onBook,
 }: ProviderCardProps) {
+  const isFavorite = useFavoritesStore((s) => s.providerIds.includes(provider.id));
+  const toggleFavorite = useFavoritesStore((s) => s.toggle);
+
   return (
     <View className="mt-2 overflow-hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
       {/* Header */}
@@ -38,6 +42,18 @@ export function ProviderCard({
             {categoryServiceLabel(provider.category)}
           </Text>
         </View>
+        <Pressable
+          onPress={() => toggleFavorite(provider.id)}
+          hitSlop={8}
+          className="h-9 w-9 items-center justify-center rounded-full active:bg-gray-50"
+          accessibilityLabel={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+        >
+          <Ionicons
+            name={isFavorite ? 'heart' : 'heart-outline'}
+            size={20}
+            color={isFavorite ? colors.red600 : colors.gray400}
+          />
+        </Pressable>
       </View>
 
       {/* Stats row */}
