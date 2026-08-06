@@ -5,4 +5,5 @@
 export const STORAGE_KEYS = {
   bookings: 'khidmat-bookings',
   settings: 'khidmat-settings',
+  favorites: 'khidmat-favorites',
 } as const;
