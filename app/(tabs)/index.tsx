@@ -1,8 +1,8 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { View, Text, ScrollView, Platform, Alert } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 
 import { ChatBubble } from '@/components/ChatBubble';
@@ -63,6 +63,14 @@ export default function ChatScreen() {
   const insets = useSafeAreaInsets();
   const defaultLocation = useSettingsStore((s) => s.defaultLocation);
   const addBooking = useBookingsStore((s) => s.addBooking);
+
+  // "Book again" navigates here with the request pre-filled; drop it into the
+  // input (only while the conversation is empty, so it never clobbers typing).
+  const { prefill } = useLocalSearchParams<{ prefill?: string }>();
+  useEffect(() => {
+    if (prefill && messages.length === 0) setInputText(prefill);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prefill]);
 
   const scrollToBottom = useCallback(() => {
     setTimeout(() => {
