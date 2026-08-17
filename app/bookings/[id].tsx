@@ -13,6 +13,7 @@ import { useBookingsStore } from '@/lib/stores/useBookingsStore';
 import { providers } from '@/lib/mock/providers';
 import { categoryEmoji, categoryServiceLabel } from '@/lib/categories';
 import { colors } from '@/lib/theme/colors';
+import { buildRebookPrompt } from '@/lib/util/rebook';
 
 export default function BookingDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -33,6 +34,15 @@ export default function BookingDetailScreen() {
   const handleSaveNote = useCallback(() => {
     if (id) setNote(id, noteDraft);
   }, [id, noteDraft, setNote]);
+
+  const handleBookAgain = useCallback(() => {
+    if (!booking) return;
+    // Drop back into the chat with the request pre-filled; the user picks a slot.
+    router.push({
+      pathname: '/(tabs)',
+      params: { prefill: buildRebookPrompt(booking) },
+    });
+  }, [booking]);
 
   const handleCancel = useCallback(() => {
     Alert.alert(
@@ -153,6 +163,14 @@ export default function BookingDetailScreen() {
           </Button>
           <Button variant="destructive" onPress={handleCancel}>
             Cancel booking
+          </Button>
+        </View>
+      )}
+
+      {(booking.status === 'completed' || booking.status === 'cancelled') && (
+        <View className="mb-12">
+          <Button variant="primary" onPress={handleBookAgain}>
+            Book again
           </Button>
         </View>
       )}
