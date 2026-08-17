@@ -8,6 +8,7 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 
 import {
   useSettingsStore,
@@ -15,10 +16,13 @@ import {
   type ReminderLeadHours,
 } from '@/lib/stores/useSettingsStore';
 import { useBookingsStore } from '@/lib/stores/useBookingsStore';
+import { useFavoritesStore } from '@/lib/stores/useFavoritesStore';
 import { Button } from '@/components/Button';
 import { SECTORS as SECTOR_OPTIONS, DEFAULT_SECTOR } from '@/lib/mock/providers';
 import { colors } from '@/lib/theme/colors';
+import { categoryEmoji, categoryServiceLabel } from '@/lib/categories';
 import { computeBookingSummary } from '@/lib/util/bookingSummary';
+import { resolveFavoriteProviders } from '@/lib/util/favorites';
 
 // Delay the blur handler so a dropdown option's onPress can fire first.
 const DROPDOWN_BLUR_DELAY_MS = 200;
@@ -39,8 +43,14 @@ export default function SettingsScreen() {
   const setReminderLeadHours = useSettingsStore((s) => s.setReminderLeadHours);
   const bookings = useBookingsStore((s) => s.bookings);
   const clearBookings = useBookingsStore((s) => s.clear);
+  const favoriteIds = useFavoritesStore((s) => s.providerIds);
+  const toggleFavorite = useFavoritesStore((s) => s.toggle);
 
   const summary = useMemo(() => computeBookingSummary(bookings), [bookings]);
+  const favorites = useMemo(
+    () => resolveFavoriteProviders(favoriteIds),
+    [favoriteIds],
+  );
 
   const [locationInput, setLocationInput] = useState(defaultLocation);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -209,6 +219,47 @@ export default function SettingsScreen() {
                   <Text className="mt-0.5 text-[11px] text-gray-500">
                     {stat.label}
                   </Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {/* Section: Favorites */}
+        {favorites.length > 0 && (
+          <View className="mb-6">
+            <Text className="mb-2 text-sm font-bold text-gray-900">
+              Favorite providers
+            </Text>
+            <View className="overflow-hidden rounded-2xl border border-gray-100">
+              {favorites.map((provider, i) => (
+                <View
+                  key={provider.id}
+                  className={`flex-row items-center bg-white px-3 py-3 ${
+                    i > 0 ? 'border-t border-gray-50' : ''
+                  }`}
+                >
+                  <View className="h-9 w-9 items-center justify-center rounded-full bg-primary-50">
+                    <Text className="text-base">
+                      {categoryEmoji(provider.category)}
+                    </Text>
+                  </View>
+                  <View className="ml-3 flex-1">
+                    <Text className="text-sm font-semibold text-gray-900">
+                      {provider.name}
+                    </Text>
+                    <Text className="text-xs text-gray-500">
+                      {categoryServiceLabel(provider.category)} · {provider.sector}
+                    </Text>
+                  </View>
+                  <Pressable
+                    onPress={() => toggleFavorite(provider.id)}
+                    hitSlop={8}
+                    className="h-9 w-9 items-center justify-center rounded-full active:bg-gray-50"
+                    accessibilityLabel={`Remove ${provider.name} from favorites`}
+                  >
+                    <Ionicons name="heart" size={18} color={colors.red600} />
+                  </Pressable>
                 </View>
               ))}
             </View>
