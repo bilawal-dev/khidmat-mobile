@@ -23,6 +23,7 @@ import {
   type BookingTab,
 } from '@/lib/util/bookingFilters';
 import { filterBookingsByQuery } from '@/lib/util/bookingSearch';
+import { formatTimeUntil } from '@/lib/util/relativeTime';
 import {
   BOOKING_SORTS,
   applyBookingSort,
@@ -40,6 +41,8 @@ export default function BookingsScreen() {
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<BookingSort>('newest');
 
+  // Snapshot "now" once per render so all row countdowns share one reference.
+  const now = Date.now();
   const counts = useMemo(() => countByTab(bookings), [bookings]);
   const visible = useMemo(() => {
     const inTab = filterBookingsByTab(bookings, activeTab);
@@ -198,36 +201,50 @@ export default function BookingsScreen() {
             </Text>
           </View>
         )}
-        {visible.map((booking) => (
-          <Pressable
-            key={booking.id}
-            onPress={() => router.push(`/bookings/${booking.id}`)}
-            className="mb-3 flex-row items-center rounded-2xl border border-gray-100 bg-white p-4 shadow-sm active:bg-gray-50"
-          >
-            {/* Category emoji */}
-            <View className="h-11 w-11 items-center justify-center rounded-full bg-primary-50">
-              <Text className="text-xl">
-                {categoryEmoji(booking.category)}
-              </Text>
-            </View>
+        {visible.map((booking) => {
+          const isUpcoming =
+            booking.status === 'confirmed' || booking.status === 'reminded';
+          const countdown = isUpcoming
+            ? formatTimeUntil(booking.scheduledTimestamp, now)
+            : null;
+          return (
+            <Pressable
+              key={booking.id}
+              onPress={() => router.push(`/bookings/${booking.id}`)}
+              className="mb-3 flex-row items-center rounded-2xl border border-gray-100 bg-white p-4 shadow-sm active:bg-gray-50"
+            >
+              {/* Category emoji */}
+              <View className="h-11 w-11 items-center justify-center rounded-full bg-primary-50">
+                <Text className="text-xl">
+                  {categoryEmoji(booking.category)}
+                </Text>
+              </View>
 
-            {/* Info */}
-            <View className="ml-3 flex-1">
-              <Text className="text-[15px] font-bold text-gray-900">
-                {booking.providerName}
-              </Text>
-              <Text className="mt-0.5 text-xs text-gray-500">
-                {categoryServiceLabel(booking.category)} · {booking.sector}
-              </Text>
-              <Text className="mt-0.5 text-xs text-gray-400">
-                {booking.scheduledFor}
-              </Text>
-            </View>
+              {/* Info */}
+              <View className="ml-3 flex-1">
+                <Text className="text-[15px] font-bold text-gray-900">
+                  {booking.providerName}
+                </Text>
+                <Text className="mt-0.5 text-xs text-gray-500">
+                  {categoryServiceLabel(booking.category)} · {booking.sector}
+                </Text>
+                <View className="mt-0.5 flex-row items-center">
+                  <Text className="text-xs text-gray-400">
+                    {booking.scheduledFor}
+                  </Text>
+                  {countdown && (
+                    <Text className="ml-2 text-xs font-semibold text-primary">
+                      · {countdown}
+                    </Text>
+                  )}
+                </View>
+              </View>
 
-            {/* Status badge */}
-            <StatusBadge status={booking.status} />
-          </Pressable>
-        ))}
+              {/* Status badge */}
+              <StatusBadge status={booking.status} />
+            </Pressable>
+          );
+        })}
         <View className="h-6" />
       </ScrollView>
     </SafeAreaView>
