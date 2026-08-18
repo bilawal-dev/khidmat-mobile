@@ -2,9 +2,12 @@ import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '@/lib/theme/colors';
+import { useBookingsStore } from '@/lib/stores/useBookingsStore';
+import { countUpcoming } from '@/lib/util/bookingFilters';
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
+  const upcomingCount = useBookingsStore((s) => countUpcoming(s.bookings));
   return (
     <Tabs
       screenOptions={{
@@ -40,6 +43,13 @@ export default function TabsLayout() {
         name="bookings"
         options={{
           title: 'Bookings',
+          // Surface how many upcoming bookings need attention.
+          tabBarBadge: upcomingCount > 0 ? upcomingCount : undefined,
+          tabBarBadgeStyle: {
+            backgroundColor: colors.primary,
+            color: colors.white,
+            fontSize: 10,
+          },
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="calendar" size={size} color={color} />
           ),

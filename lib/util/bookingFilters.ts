@@ -38,3 +38,8 @@ export function countByTab(bookings: Booking[]): Record<BookingTab, number> {
   for (const b of bookings) counts[tabForStatus(b.status)]++;
   return counts;
 }
+
+/** Number of upcoming (confirmed/reminded) bookings — for the tab badge. */
+export function countUpcoming(bookings: Booking[]): number {
+  return bookings.filter((b) => tabForStatus(b.status) === 'upcoming').length;
+}
