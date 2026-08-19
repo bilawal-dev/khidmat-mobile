@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { ExamplePromptChip } from './ExamplePromptChip';
+import { NextAppointmentBanner } from './NextAppointmentBanner';
 import { EXAMPLE_PROMPTS } from '@/lib/examplePrompts';
 
 type ChatEmptyStateProps = {
@@ -11,6 +12,9 @@ type ChatEmptyStateProps = {
 export function ChatEmptyState({ onSelectPrompt }: ChatEmptyStateProps) {
   return (
     <View className="flex-1 justify-center px-2 pb-8">
+      {/* Soonest upcoming booking, if any */}
+      <NextAppointmentBanner />
+
       {/* Greeting */}
       <Text className="text-3xl font-bold text-gray-900">
         Assalam-o-Alaikum 👋
