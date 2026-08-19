@@ -9,6 +9,7 @@ import { StatusTimeline } from '@/components/StatusTimeline';
 import { AgentThreadSection } from '@/components/AgentThreadSection';
 import { BookingInfoCard } from '@/components/BookingInfoCard';
 import { Button } from '@/components/Button';
+import { FavoriteButton } from '@/components/FavoriteButton';
 import { useBookingsStore } from '@/lib/stores/useBookingsStore';
 import { providers } from '@/lib/mock/providers';
 import { categoryEmoji, categoryServiceLabel } from '@/lib/categories';
@@ -107,9 +108,16 @@ export default function BookingDetailScreen() {
         <View className="mb-3 h-16 w-16 items-center justify-center rounded-full bg-primary-100">
           <Text className="text-3xl">{categoryEmoji(booking.category)}</Text>
         </View>
-        <Text className="text-xl font-bold text-gray-900">
-          {booking.providerName}
-        </Text>
+        <View className="flex-row items-center">
+          <Text className="text-xl font-bold text-gray-900">
+            {booking.providerName}
+          </Text>
+          {booking.providerId && (
+            <View className="ml-1">
+              <FavoriteButton providerId={booking.providerId} size={18} />
+            </View>
+          )}
+        </View>
         <Text className="mt-1 text-sm text-gray-500">
           {categoryServiceLabel(booking.category)}
         </Text>
