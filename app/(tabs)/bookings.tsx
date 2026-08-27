@@ -29,6 +29,8 @@ import {
   applyBookingSort,
   type BookingSort,
 } from '@/lib/util/bookingSort';
+import { filterBookingsByFavorites } from '@/lib/util/bookingFavorites';
+import { useFavoritesStore } from '@/lib/stores/useFavoritesStore';
 
 // Pull-to-refresh has no real backend to hit; spin briefly for feedback.
 const REFRESH_SIMULATION_MS = 600;
@@ -36,10 +38,12 @@ const REFRESH_SIMULATION_MS = 600;
 export default function BookingsScreen() {
   const bookings = useBookingsStore((s) => s.bookings);
   const clearCancelled = useBookingsStore((s) => s.clearCancelled);
+  const favoriteIds = useFavoritesStore((s) => s.providerIds);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<BookingTab>('upcoming');
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<BookingSort>('newest');
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
 
   // Snapshot "now" once per render so all row countdowns share one reference.
   const now = Date.now();
@@ -47,8 +51,11 @@ export default function BookingsScreen() {
   const visible = useMemo(() => {
     const inTab = filterBookingsByTab(bookings, activeTab);
     const matched = filterBookingsByQuery(inTab, query);
-    return applyBookingSort(matched, sort);
-  }, [bookings, activeTab, query, sort]);
+    const scoped = favoritesOnly
+      ? filterBookingsByFavorites(matched, favoriteIds)
+      : matched;
+    return applyBookingSort(scoped, sort);
+  }, [bookings, activeTab, query, sort, favoritesOnly, favoriteIds]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -176,6 +183,22 @@ export default function BookingsScreen() {
             </Pressable>
           );
         })}
+
+        {/* Favorites-only toggle */}
+        <Pressable
+          onPress={() => setFavoritesOnly((v) => !v)}
+          className={`ml-auto flex-row items-center rounded-full px-3 py-1 ${
+            favoritesOnly ? 'bg-red-600' : 'bg-gray-50'
+          }`}
+        >
+          <Text
+            className={`text-xs font-semibold ${
+              favoritesOnly ? 'text-white' : 'text-gray-500'
+            }`}
+          >
+            ♥ Favorites
+          </Text>
+        </Pressable>
       </View>
 
       <ScrollView
@@ -193,11 +216,15 @@ export default function BookingsScreen() {
       >
         {visible.length === 0 && (
           <View className="items-center px-8 pt-16">
-            <Text className="text-4xl">{query.trim() ? '🔍' : '🗂️'}</Text>
+            <Text className="text-4xl">
+              {favoritesOnly ? '♥' : query.trim() ? '🔍' : '🗂️'}
+            </Text>
             <Text className="mt-3 text-center text-sm text-gray-400">
-              {query.trim()
-                ? `No ${activeTab} bookings match “${query.trim()}”`
-                : `No ${activeTab} bookings`}
+              {favoritesOnly
+                ? `No ${activeTab} bookings with a favorite provider`
+                : query.trim()
+                  ? `No ${activeTab} bookings match “${query.trim()}”`
+                  : `No ${activeTab} bookings`}
             </Text>
           </View>
         )}
