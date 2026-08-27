@@ -10,6 +10,7 @@ import { AgentThreadSection } from '@/components/AgentThreadSection';
 import { BookingInfoCard } from '@/components/BookingInfoCard';
 import { Button } from '@/components/Button';
 import { FavoriteButton } from '@/components/FavoriteButton';
+import { RatingStars } from '@/components/RatingStars';
 import { useBookingsStore } from '@/lib/stores/useBookingsStore';
 import { providers } from '@/lib/mock/providers';
 import { categoryEmoji, categoryServiceLabel } from '@/lib/categories';
@@ -121,6 +122,11 @@ export default function BookingDetailScreen() {
         <Text className="mt-1 text-sm text-gray-500">
           {categoryServiceLabel(booking.category)}
         </Text>
+        {provider && (
+          <View className="mt-1.5">
+            <RatingStars rating={provider.rating} reviewCount={provider.reviewCount} />
+          </View>
+        )}
         <View className="mt-2">
           <StatusBadge status={booking.status} />
         </View>
