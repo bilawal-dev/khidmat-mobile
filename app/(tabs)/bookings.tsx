@@ -11,20 +11,17 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 
-import { StatusBadge } from '@/components/StatusBadge';
+import { BookingRow } from '@/components/BookingRow';
 import { useBookingsStore } from '@/lib/stores/useBookingsStore';
-import { categoryEmoji, categoryServiceLabel } from '@/lib/categories';
 import { colors } from '@/lib/theme/colors';
 import { pluralize } from '@/lib/util/text';
 import {
   BOOKING_TABS,
   countByTab,
   filterBookingsByTab,
-  isUpcomingStatus,
   type BookingTab,
 } from '@/lib/util/bookingFilters';
 import { filterBookingsByQuery } from '@/lib/util/bookingSearch';
-import { formatTimeUntil } from '@/lib/util/relativeTime';
 import {
   BOOKING_SORTS,
   applyBookingSort,
@@ -229,48 +226,9 @@ export default function BookingsScreen() {
             </Text>
           </View>
         )}
-        {visible.map((booking) => {
-          const countdown = isUpcomingStatus(booking.status)
-            ? formatTimeUntil(booking.scheduledTimestamp, now)
-            : null;
-          return (
-            <Pressable
-              key={booking.id}
-              onPress={() => router.push(`/bookings/${booking.id}`)}
-              className="mb-3 flex-row items-center rounded-2xl border border-gray-100 bg-white p-4 shadow-sm active:bg-gray-50"
-            >
-              {/* Category emoji */}
-              <View className="h-11 w-11 items-center justify-center rounded-full bg-primary-50">
-                <Text className="text-xl">
-                  {categoryEmoji(booking.category)}
-                </Text>
-              </View>
-
-              {/* Info */}
-              <View className="ml-3 flex-1">
-                <Text className="text-[15px] font-bold text-gray-900">
-                  {booking.providerName}
-                </Text>
-                <Text className="mt-0.5 text-xs text-gray-500">
-                  {categoryServiceLabel(booking.category)} · {booking.sector}
-                </Text>
-                <View className="mt-0.5 flex-row items-center">
-                  <Text className="text-xs text-gray-400">
-                    {booking.scheduledFor}
-                  </Text>
-                  {countdown && (
-                    <Text className="ml-2 text-xs font-semibold text-primary">
-                      · {countdown}
-                    </Text>
-                  )}
-                </View>
-              </View>
-
-              {/* Status badge */}
-              <StatusBadge status={booking.status} />
-            </Pressable>
-          );
-        })}
+        {visible.map((booking) => (
+          <BookingRow key={booking.id} booking={booking} now={now} />
+        ))}
         <View className="h-6" />
       </ScrollView>
     </SafeAreaView>
