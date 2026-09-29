@@ -20,6 +20,7 @@ import {
   BOOKING_TABS,
   countByTab,
   filterBookingsByTab,
+  isUpcomingStatus,
   type BookingTab,
 } from '@/lib/util/bookingFilters';
 import { filterBookingsByQuery } from '@/lib/util/bookingSearch';
@@ -229,9 +230,7 @@ export default function BookingsScreen() {
           </View>
         )}
         {visible.map((booking) => {
-          const isUpcoming =
-            booking.status === 'confirmed' || booking.status === 'reminded';
-          const countdown = isUpcoming
+          const countdown = isUpcomingStatus(booking.status)
             ? formatTimeUntil(booking.scheduledTimestamp, now)
             : null;
           return (

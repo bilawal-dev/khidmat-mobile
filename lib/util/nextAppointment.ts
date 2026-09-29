@@ -1,5 +1,5 @@
 import type { Booking } from '../stores/useBookingsStore';
-import { tabForStatus } from './bookingFilters';
+import { isUpcomingStatus } from './bookingFilters';
 
 /**
  * The soonest still-upcoming booking (confirmed/reminded, scheduled at or after
@@ -8,6 +8,6 @@ import { tabForStatus } from './bookingFilters';
  */
 export function nextUpcomingBooking(bookings: Booking[], now: number): Booking | null {
   return bookings
-    .filter((b) => tabForStatus(b.status) === 'upcoming' && b.scheduledTimestamp >= now)
+    .filter((b) => isUpcomingStatus(b.status) && b.scheduledTimestamp >= now)
     .sort((a, b) => a.scheduledTimestamp - b.scheduledTimestamp)[0] ?? null;
 }

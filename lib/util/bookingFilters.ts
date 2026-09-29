@@ -27,6 +27,14 @@ export function tabForStatus(status: BookingStatus): BookingTab {
   ) ?? 'upcoming';
 }
 
+/**
+ * Whether a booking is still active (confirmed/reminded) — i.e. it can be
+ * completed or cancelled and should show a countdown.
+ */
+export function isUpcomingStatus(status: BookingStatus): boolean {
+  return tabForStatus(status) === 'upcoming';
+}
+
 /** Keep only the bookings that belong to the given tab. */
 export function filterBookingsByTab(bookings: Booking[], tab: BookingTab): Booking[] {
   return bookings.filter((b) => TAB_STATUSES[tab].includes(b.status));
@@ -41,5 +49,5 @@ export function countByTab(bookings: Booking[]): Record<BookingTab, number> {
 
 /** Number of upcoming (confirmed/reminded) bookings — for the tab badge. */
 export function countUpcoming(bookings: Booking[]): number {
-  return bookings.filter((b) => tabForStatus(b.status) === 'upcoming').length;
+  return bookings.filter((b) => isUpcomingStatus(b.status)).length;
 }

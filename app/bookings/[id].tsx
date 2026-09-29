@@ -16,6 +16,7 @@ import { providers } from '@/lib/mock/providers';
 import { categoryEmoji, categoryServiceLabel } from '@/lib/categories';
 import { colors } from '@/lib/theme/colors';
 import { buildRebookPrompt } from '@/lib/util/rebook';
+import { isUpcomingStatus } from '@/lib/util/bookingFilters';
 
 export default function BookingDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -170,7 +171,7 @@ export default function BookingDetailScreen() {
       <StatusTimeline status={booking.status} />
 
       {/* Actions */}
-      {(booking.status === 'confirmed' || booking.status === 'reminded') && (
+      {isUpcomingStatus(booking.status) && (
         <View className="mb-12 gap-3">
           <Button variant="primary" onPress={handleMarkCompleted}>
             Mark as completed
