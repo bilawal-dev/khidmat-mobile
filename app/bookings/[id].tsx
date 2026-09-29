@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { View, Text, ScrollView, Pressable, Alert, TextInput } from 'react-native';
+import { View, Text, ScrollView, Pressable, Alert, TextInput, Share } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,6 +17,7 @@ import { categoryEmoji, categoryServiceLabel } from '@/lib/categories';
 import { colors } from '@/lib/theme/colors';
 import { buildRebookPrompt } from '@/lib/util/rebook';
 import { isUpcomingStatus } from '@/lib/util/bookingFilters';
+import { buildShareMessage } from '@/lib/util/shareBooking';
 
 export default function BookingDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -46,6 +47,15 @@ export default function BookingDetailScreen() {
       params: { prefill: buildRebookPrompt(booking) },
     });
   }, [booking]);
+
+  const handleShare = useCallback(async () => {
+    if (!booking) return;
+    try {
+      await Share.share({ message: buildShareMessage(booking, provider?.phone) });
+    } catch {
+      // No share target available (e.g. web without navigator.share) — nothing to recover.
+    }
+  }, [booking, provider?.phone]);
 
   const handleCancel = useCallback(() => {
     Alert.alert(
@@ -96,9 +106,19 @@ export default function BookingDetailScreen() {
         >
           <Ionicons name="arrow-back" size={22} color={colors.primary} />
         </Pressable>
-        <Text className="text-lg font-bold text-gray-900">
+        <Text className="flex-1 text-lg font-bold text-gray-900">
           Booking Details
         </Text>
+        {isUpcomingStatus(booking.status) && (
+          <Pressable
+            onPress={handleShare}
+            accessibilityRole="button"
+            accessibilityLabel="Share booking"
+            className="h-9 w-9 items-center justify-center rounded-full active:bg-gray-100"
+          >
+            <Ionicons name="share-outline" size={20} color={colors.primary} />
+          </Pressable>
+        )}
       </View>
 
       <ScrollView
